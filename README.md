@@ -10,4 +10,6 @@ In Semantic Bit Theory, the bit can be either a:
 
 ### 📈 Semantic Address, Encoding, Representations, and Stories
 
-In Semantic Bit Theory, a Semantic Address is composed of one or more semantic bits as a collection, representing a unique location in the global space. 🌎 This is synonomous with Semantic Addressing by IP in the global network known as The Internet.
+In Semantic Bit Theory, a Semantic Address is composed of one or more semantic bits as a collection, representing a unique location in the global space. 🌎 This is synonymous with Semantic Addressing by IP in the global network known as The Internet.
+
+As I see it, Deep Learning's Semantic Address in neural networks is conceptually analogous.
