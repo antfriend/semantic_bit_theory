@@ -79,6 +79,16 @@ Outputs:
 - Histograms: per‑channel relative bars with configurable bins.
 - ASCII: grayscale preview (no ANSI), auto aspect-corrected for terminals.
 
+## Text Extraction (OCR)
+- Quick CLI (requires Tesseract installed):
+  - Windows (PowerShell): `Get-ChildItem *.png | % { tesseract $_.FullName (Join-Path "text" $_.BaseName) -l eng --psm 6 }`
+    - Create output dir first: `New-Item -ItemType Directory -Force text`
+  - macOS/Linux (bash): `mkdir -p text && for f in *.png; do tesseract "$f" "text/${f%.*}" -l eng --psm 6; done`
+- Python helper: `tools/ocr_extract.py` (uses Pillow + pytesseract)
+  - Install deps: `pip install pillow pytesseract` and install Tesseract OCR engine (brew/choco/scoop/apt).
+  - Example: `python tools/ocr_extract.py sbt_*.png --outdir text --lang eng --psm 6 --scale 1.5 --preprocess thresh`
+  - Writes one `.txt` per image under `text/`.
+
 ## CI
 - GitHub Actions workflow: `.github/workflows/validate.yml`
 - On each push/PR it:
