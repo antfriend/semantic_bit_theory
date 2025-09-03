@@ -2,7 +2,7 @@
 ## Home of the Semantic Bit
 
 ### 📈 Semantic Story Encoding and Decoding
-
+## Story understanding, event logging, knowledge graphs, affective computing—anywhere meaning evolves over time.
 Semantic Bit Theory encodes and decodes time-spanning events into a symbolic taxonomy of what it all means. 🌎 🌠 🍄
 
 ### It means what you think it means, if you know what I mean.
@@ -39,6 +39,8 @@ o_o
 <img src="./sbt_63.png">
 <img src="./sbt_90.png">   
 <img src="./sbt_103.png"> 
+<img src="./sbt_107.png"> 
+<img src="./sbt_37.png"> 
  
 ## Schema + Examples
 - Schema: `schema/semantic-bit.schema.json`
