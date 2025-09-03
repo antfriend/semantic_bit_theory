@@ -1,7 +1,7 @@
 # semantic_bit_theory
 ## Home of the Semantic Bit
 
-### 📈 Semantic Encoding, Representations, and Stories
+### 📈 Semantic Story Encoding and Decoding
 
 Semantic Bit Theory encodes and decodes time-spanning events into a symbolic taxonomy of what it all means. 🌎 🌠 🍄
 
