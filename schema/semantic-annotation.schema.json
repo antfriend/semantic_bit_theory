@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schema/semantic-annotation.schema.json",
+  "title": "Semantic Bit Overlay Annotation",
+  "description": "Schema for annotating image elements with SBT axes and drawing an SVG overlay.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["image", "elements"],
+  "properties": {
+    "image": { "type": "string", "description": "Relative path to the base image (e.g., sbt_23.png)." },
+    "canvas": {
+      "type": "object",
+      "description": "Optional explicit canvas size if known.",
+      "additionalProperties": false,
+      "properties": {
+        "width": { "type": "number" },
+        "height": { "type": "number" }
+      }
+    },
+    "elements": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/element" }
+    }
+  },
+  "definitions": {
+    "axes": {
+      "type": "object",
+      "required": ["lexical", "logical", "temporal", "human"],
+      "additionalProperties": false,
+      "properties": {
+        "lexical": { "type": "string", "enum": ["noun", "verb"] },
+        "logical": { "type": "string", "enum": ["object", "predicate"] },
+        "temporal": { "type": "string", "enum": ["particle", "wave"] },
+        "human": { "type": ["string", "null"], "enum": ["person", "feeling", null] }
+      }
+    },
+    "element": {
+      "type": "object",
+      "required": ["type", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "enum": ["node", "event", "band", "link", "label"] },
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "axes": { "$ref": "#/definitions/axes" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "w": { "type": "number" },
+        "h": { "type": "number" },
+        "r": { "type": "number" },
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "relation": { "type": "string", "enum": ["updates_state", "terminates_state", "caused_by"] }
+      }
+    }
+  }
+}
+

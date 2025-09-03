@@ -14,14 +14,30 @@ In Semantic Bit Theory the taxonomic principle of division is:
 - person or a feeling that person is having   
 o_o
 
+## Applications:
+## Knowledge Graphs & Integration
+
+- Normalize entities, actions, and states across sources; align schemas via the noun/verb and object/predicate splits; reduce ambiguity and improve linking in heterogeneous data.
+
+## Narrative Analytics & Event Logs
+
+- Turn time-stamped events into particle/wave stories; detect state transitions, root causes, and arcs (e.g., incident timelines, user journeys, lifecycle funnels).
+
+## Affective Computing & Personalization
+
+- Use person/feeling to track internal states alongside actions; power empathetic assistants, mental health journaling, and adaptive UX or NPC behavior.
+
 
 <img src="./sbt_121.png">   
-### "You keep saying that word. I don't think it means what you think it means." -- Princess Bride
+<h2> "You keep saying that word. I don't think it means what you think it means." -- Princess Bride</h2>
 <img src="./sbt_17.png">    
 <img src="./sbt_1.png">   
-<img src="./sbt_19.png">   
+<img src="./sbt_19.png"> 
+<img src="./sbt_35.png">   
 <img src="./sbt_23.png">   
-<img src="./sbt_5.png">   
+<img src="./sbt_5.png">
+<img src="./sbt_63.png">
+<img src="./sbt_90.png">   
 <img src="./sbt_103.png"> 
  
 ## Schema + Examples
@@ -38,6 +54,30 @@ Or use the included friendly validator (falls back if `jsonschema` is not instal
 - `python tools/validate.py`  
   Validates `examples/*.json` and `examples/invalid/*.json` and prints per-file results.
 - Validate custom paths: `python tools/validate.py examples/*.json` 
+
+## Overlays
+- Annotation schema: `schema/semantic-annotation.schema.json`
+- Legend/colors: `overlays/legend.json`
+- Placeholder annotations for `sbt_23.png`: `annotations/sbt_23.json` (adjust coordinates/labels to match the image).
+- Renderer: `tools/render_overlay.py`
+
+Render an SVG overlay (no external deps):
+- `python tools/render_overlay.py annotations/sbt_23.json overlays/sbt_23.overlay.svg --legend overlays/legend.json`
+
+Guidance:
+- Tag nouns/objects vs verbs/predicates; use bands for wave states and dots for particle events.
+- Use links: `updates_state`, `terminates_state`, `caused_by` to connect events and states.
+
+## PNG Inspection
+- Script: `tools/png_stats.py`
+- Basics: `python3 tools/png_stats.py sbt_23.png`
+- With histograms: `python3 tools/png_stats.py sbt_23.png --hist --bins 16`
+- With ASCII preview: `python3 tools/png_stats.py sbt_23.png --ascii --width 80`
+
+Outputs:
+- Reports size, bit depth, color type, interlace, and average color for RGB/RGBA 8‑bit PNGs.
+- Histograms: per‑channel relative bars with configurable bins.
+- ASCII: grayscale preview (no ANSI), auto aspect-corrected for terminals.
 
 ## CI
 - GitHub Actions workflow: `.github/workflows/validate.yml`

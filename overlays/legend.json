@@ -1,0 +1,24 @@
+{
+  "colors": {
+    "noun": "#2b6cb0",
+    "verb": "#ed8936",
+    "object": "#63b3ed",
+    "predicate": "#f6ad55",
+    "particle": "#4a5568",
+    "wave": "#38a169",
+    "person": "#805ad5",
+    "feeling": "#d53f8c"
+  },
+  "shapes": {
+    "object": "rect",
+    "predicate": "pill",
+    "event": "dot",
+    "band": "band"
+  },
+  "links": {
+    "updates_state": { "marker": "arrow", "color": "#4a5568" },
+    "terminates_state": { "marker": "bar", "color": "#e53e3e" },
+    "caused_by": { "marker": "lightning", "color": "#3182ce" }
+  }
+}
+
