@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schema/semantic-bit.schema.json",
+  "story_id": "invalid-01",
+  "title": "Example with intentionally invalid axes",
+  "bits": [
+    {
+      "bit_id": "weird",
+      "axes": {
+        "lexical": "thing",      
+        "logical": "object",
+        "temporal": "moment",    
+        "human": "robot"         
+      },
+      "payload": { "label": "Weird" }
+    }
+  ]
+}
+

@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/schema/semantic-bit.schema.json",
+  "title": "Semantic Bit Story",
+  "description": "Schema for encoding stories as collections of semantic bits along four axes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["story_id", "bits"],
+  "properties": {
+    "story_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "bits": {
+      "type": "array",
+      "description": "Collection of semantic bits composing the story.",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/definitions/bit" }
+    }
+  },
+  "definitions": {
+    "axes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lexical", "logical", "temporal", "human"],
+      "properties": {
+        "lexical": { "type": "string", "enum": ["noun", "verb"] },
+        "logical": { "type": "string", "enum": ["object", "predicate"] },
+        "temporal": { "type": "string", "enum": ["particle", "wave"] },
+        "human": {
+          "description": "Human-centric dimension: person, feeling, or null when not applicable.",
+          "anyOf": [
+            { "type": "string", "enum": ["person", "feeling"] },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "description": "Optional graph-like references between bits.",
+      "additionalProperties": false,
+      "properties": {
+        "updates_state": { "type": "string" },
+        "terminates_state": { "type": "string" },
+        "caused_by": { "type": ["string", "null"] }
+      }
+    },
+    "bit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bit_id", "axes", "payload"],
+      "properties": {
+        "bit_id": { "type": "string", "minLength": 1 },
+        "axes": { "$ref": "#/definitions/axes" },
+        "payload": {
+          "type": "object",
+          "description": "Payload content; properties vary by axes. Keep minimal, portable fields.",
+          "additionalProperties": true,
+          "properties": {
+            "label": { "type": "string" },
+            "subject": { "type": "string" },
+            "object": { "type": ["string", "null"] },
+            "property": { "type": "string" },
+            "relation": { "type": "string" },
+            "target": { "type": ["string", "null"] },
+            "time": { "type": "string", "format": "date-time" },
+            "place": { "type": "string" },
+            "magnitude": { "type": "string" },
+            "value": { "type": ["string", "number", "boolean", "null"] },
+            "intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+            "interval": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["start"],
+              "properties": {
+                "start": { "type": "string", "format": "date" },
+                "end": { "type": ["string", "null"], "format": "date" }
+              }
+            }
+          }
+        },
+        "links": { "$ref": "#/definitions/links" }
+      }
+    }
+  }
+}
+
