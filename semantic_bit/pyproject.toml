@@ -7,7 +7,7 @@ name = "semantic-bit"
 version = "0.1.0"
 description = "Generate structured JSON metadata for up to 5000 characters of text."
 readme = "README.md"
-authors = [{ name = "Semantic Bit Maintainers" }]
+authors = [{ name = "Dan Ray, Gregory Blacketter" }]
 license = { text = "MIT" }
 requires-python = ">=3.9"
 keywords = ["text", "analysis", "json"]
@@ -31,8 +31,8 @@ semantic-bit = "semantic_bit.cli:main"
 dev = ["pytest>=7"]
 
 [project.urls]
-Homepage = "https://example.com/semantic-bit"
-Repository = "https://example.com/semantic-bit/source"
+Homepage = "https://github.com/antfriend/semantic_bit_theory/blob/main/README.md"
+Repository = "https://github.com/antfriend/semantic_bit_theory"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
