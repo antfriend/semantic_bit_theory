@@ -46,6 +46,9 @@ from .semantic import (
     extract_point1,
     extract_line,
     extract_point2,
+    # Validation functions
+    validate_semantic_bit_json,
+    SEMANTIC_BIT_JSON_SCHEMA,
 )
 
 __all__ = [
@@ -69,6 +72,10 @@ __all__ = [
     "extract_point1",
     "extract_line", 
     "extract_point2",
+    
+    # Validation API
+    "validate_semantic_bit_json",
+    "SEMANTIC_BIT_JSON_SCHEMA",
 ]
 
 __version__ = "0.1.0"

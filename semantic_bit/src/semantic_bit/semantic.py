@@ -469,3 +469,85 @@ def decode_sb_to_dot(sb: Dict[str, List[Dict[str, str]]], graph_name: str = "SBG
     
     dot_lines.append('}')
     return '\n'.join(dot_lines)
+
+
+# =============================================================================
+# Validation Functions
+# =============================================================================
+
+def validate_semantic_bit_json(data: any) -> Tuple[bool, Optional[str]]:
+    """Validate a data structure against the Semantic Bit JSON schema.
+    
+    Performs comprehensive validation according to the formal JSON schema
+    specification defined in the project documentation.
+    
+    Args:
+        data: The data structure to validate
+        
+    Returns:
+        Tuple of (is_valid, error_message). If valid, error_message is None.
+        
+    Example:
+        >>> valid_data = {"sentences": [{"point1": "A", "line1": "B", "point2": "C"}]}
+        >>> is_valid, error = validate_semantic_bit_json(valid_data)
+        >>> assert is_valid and error is None
+    """
+    # Top-level structure validation
+    if not isinstance(data, dict):
+        return False, "Root must be a JSON object"
+    
+    if "sentences" not in data:
+        return False, "Missing required 'sentences' key"
+    
+    sentences = data["sentences"]
+    if not isinstance(sentences, list):
+        return False, "'sentences' must be an array"
+    
+    # Validate each sentence triple
+    for i, sentence in enumerate(sentences):
+        if not isinstance(sentence, dict):
+            return False, f"Sentence {i} must be an object"
+        
+        # Check required fields
+        required_fields = ["point1", "line1", "point2"]
+        for field in required_fields:
+            if field not in sentence:
+                return False, f"Sentence {i} missing required field '{field}'"
+            
+            value = sentence[field]
+            if not isinstance(value, str):
+                return False, f"Sentence {i} field '{field}' must be a string"
+            
+            if len(value.strip()) == 0:
+                return False, f"Sentence {i} field '{field}' cannot be empty"
+    
+    # Check for additional properties at top level (should only have 'sentences')
+    extra_keys = set(data.keys()) - {"sentences"}
+    if extra_keys:
+        return False, f"Unexpected top-level keys: {', '.join(extra_keys)}"
+    
+    return True, None
+
+
+# Semantic Bit JSON Schema (as constant for reference)
+SEMANTIC_BIT_JSON_SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "sentences": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["point1", "line1", "point2"],
+                "properties": {
+                    "point1": {"type": "string", "minLength": 1},
+                    "line1": {"type": "string", "minLength": 1},
+                    "point2": {"type": "string", "minLength": 1}
+                },
+                "additionalProperties": False
+            }
+        }
+    },
+    "required": ["sentences"],
+    "additionalProperties": False
+}

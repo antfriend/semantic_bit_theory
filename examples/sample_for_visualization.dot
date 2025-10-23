@@ -1,4 +1,4 @@
-digraph SBGraph {
+digraph SampleGraph {
   p1 [label="The cat"];
   p2 [label="the mat"];
   p1 -> p2 [label="is sitting on"];

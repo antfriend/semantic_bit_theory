@@ -113,6 +113,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
         # Re-raise SystemExit to preserve argparse behavior
         raise e
     except Exception as e:
+        import sys
         print(f"Error parsing arguments: {e}", file=sys.stderr)
         return 2
 
@@ -146,6 +147,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                     args.out.parent.mkdir(parents=True, exist_ok=True)  # Create parent dirs
                     args.out.write_text(payload, encoding="utf-8")
                 except OSError as exc:
+                    import sys
                     print(f"Error writing to file '{args.out}': {exc}", file=sys.stderr)
                     return 1
             else:
@@ -157,10 +159,12 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             if args.file:
                 try:
                     if not args.file.exists():
+                        import sys
                         print(f"Error: File not found: {args.file}", file=sys.stderr)
                         return 1
                     content = args.file.read_text(encoding="utf-8")
                 except OSError as exc:
+                    import sys
                     print(f"Error reading file '{args.file}': {exc}", file=sys.stderr)
                     return 1
             else:
@@ -170,11 +174,13 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             try:
                 sb = json.loads(content)
             except json.JSONDecodeError as exc:
+                import sys
                 print(f"Error: Invalid JSON input: {exc}", file=sys.stderr)
                 return 1
             
             # Validate JSON structure
             if not isinstance(sb, dict) or "sentences" not in sb:
+                import sys
                 print("Error: JSON must contain a 'sentences' key with an array of triples", file=sys.stderr)
                 return 1
             
@@ -182,6 +188,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             try:
                 dot = decode_sb_to_dot(sb, graph_name=args.name)
             except Exception as exc:
+                import sys
                 print(f"Error generating DOT graph: {exc}", file=sys.stderr)
                 return 1
             
@@ -191,6 +198,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                     args.out.parent.mkdir(parents=True, exist_ok=True)  # Create parent dirs
                     args.out.write_text(dot, encoding="utf-8")
                 except OSError as exc:
+                    import sys
                     print(f"Error writing to file '{args.out}': {exc}", file=sys.stderr)
                     return 1
             else:
@@ -203,12 +211,15 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
             
     except ValueError as exc:
         # Handle our custom ValueError exceptions from _load_text
+        import sys
         print(f"Error: {exc}", file=sys.stderr)
         return 1
     except KeyboardInterrupt:
+        import sys
         print("\nOperation cancelled by user", file=sys.stderr)
         return 130  # Standard exit code for SIGINT
     except Exception as exc:
+        import sys
         print(f"Unexpected error: {exc}", file=sys.stderr)
         return 1
 

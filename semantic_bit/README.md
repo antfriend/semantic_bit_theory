@@ -1,66 +1,60 @@
-﻿# semantic-bit
+﻿# semantic-bit Package
 
-Generate lightweight JSON metadata for short text snippets (up to 5000 characters).
+This directory contains the Python package implementation of semantic-bit.
 
-## Installation
+## Package Structure
 
-```bash
-pip install semantic-bit
+```
+semantic_bit/
+├── src/semantic_bit/     # Source code
+│   ├── __init__.py       # Package exports and API
+│   ├── semantic.py       # Core SBT implementation  
+│   ├── cli.py           # Command line interface
+│   └── analyzer.py      # Legacy text analysis
+├── tests/               # Test suite (62+ tests)
+├── pyproject.toml       # Package configuration
+└── pytest.ini          # Test configuration
 ```
 
-## Python usage
+## Development
 
-```python
-from semantic_bit import analyze_text, analyze_text_as_json
+This package is part of the larger semantic_bit_theory project.
 
-payload = analyze_text("Hello semantic world!")
-print(payload)
-# {'character_count': 23, 'trimmed_character_count': 23, ...}
+**📖 For complete documentation, see the [project README](../README.md)**
 
-json_payload = analyze_text_as_json("Hello semantic world!")
-print(json_payload)
-```
-
-## Command line interface
+### Quick Development Setup
 
 ```bash
-semantic-bit "Your content here"
-
-# Or from a file
-semantic-bit --file path/to/document.txt
-```
-
-The CLI returns a JSON object describing the text. Use `--no-indent` to emit a compact payload.
-
-## Developing
-
-```bash
+# From this directory (semantic_bit/)
 python -m venv .venv
 source .venv/bin/activate
 pip install -e .[dev]
 pytest
 ```
 
-On Windows PowerShell, activate the environment with `.venv\Scripts\Activate.ps1`.
-
-## Publishing to PyPI
-
-1. Ensure the version in `pyproject.toml` is bumped appropriately.
-2. Build the package (install build backend first: `pip install build twine`):
-   ```bash
-   python -m build
-   ```
-3. Upload to PyPI (replace `pypi` with `testpypi` for a dry run):
-   ```bash
-   python -m twine upload dist/*
-   ```
-
-To install the package from TestPyPI for validation:
+### Testing
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple semantic-bit
+# Run all tests
+pytest
+
+# Run specific test categories  
+pytest tests/test_semantic.py::TestEncoding -v
 ```
 
-## License
+**📖 For detailed testing instructions, see [Testing Guide](../docs/testing.md)**
 
-MIT
+## Package Development
+
+### Building and Publishing
+
+```bash
+# Build the package
+pip install build twine
+python -m build
+
+# Upload to PyPI
+python -m twine upload dist/*
+```
+
+For complete project information, installation instructions, and usage examples, see the [main project README](../README.md).

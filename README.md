@@ -1,96 +1,120 @@
-# semantic_bit_theory
-## Home of the Semantic Bit
+# semantic-bit
 
-### 📈 Semantic Story Encoding and Decoding
-## Story understanding, event logging, knowledge graphs, affective computing—anywhere meaning evolves over time.
-Semantic Bit Theory encodes and decodes time-spanning events into a symbolic taxonomy of what it all means. 🌎 🌠 🍄
+Convert natural language text into semantic graphs using Semantic Bit Theory (SBT).
 
-### It means what you think it means, if you know what I mean.
+## Overview
 
-In Semantic Bit Theory the taxonomic principle of division is:   
-- noun or a verb
-- object or a predicate
-- particle or a wave
-- person or a feeling that person is having   
-o_o
+semantic-bit is a Python package that implements Semantic Bit Theory to transform natural language into structured semantic representations. It converts text into Point-Line-Point triples (subject-relationship-object) and generates Graphviz DOT graphs for visualization.
 
-## Applications:
-## Knowledge Graphs & Integration
+### Key Features
 
-- Normalize entities, actions, and states across sources; align schemas via the noun/verb and object/predicate splits; reduce ambiguity and improve linking in heterogeneous data.
+- **Semantic Encoding**: Transform text into Point-Line-Point semantic triples  
+- **Graph Generation**: Convert semantic triples to Graphviz DOT format
+- **Lightweight**: Zero external dependencies, pure Python implementation
+- **CLI Pipeline**: Seamless text → JSON → graph workflows
+- **Backward Compatible**: Preserves original text analysis functionality
 
-## Narrative Analytics & Event Logs
+### Quick Example
 
-- Turn time-stamped events into particle/wave stories; detect state transitions, root causes, and arcs (e.g., incident timelines, user journeys, lifecycle funnels).
+```bash
+# Encode text to semantic triples
+semantic-bit encode "The cat is sitting on the mat."
 
-## Affective Computing & Personalization
+# Generate a graph
+echo "The scientist studies quantum mechanics." | semantic-bit encode | semantic-bit decode
+```
 
-- Use person/feeling to track internal states alongside actions; power empathetic assistants, mental health journaling, and adaptive UX or NPC behavior.
+## Installation
 
+```bash
+pip install semantic-bit
+```
 
-<img src="./images/sbt_121.png">   
-<h2> "You keep saying that word. I don't think it means what you think it means." -- Princess Bride</h2>
-<img src="./images/sbt_17.png">    
-<img src="./images/sbt_1.png">   
-<img src="./images/sbt_19.png"> 
-<img src="./images/sbt_35.png">   
-<img src="./images/sbt_23.png">   
-<img src="./images/sbt_5.png">
-<img src="./images/sbt_63.png">
-<img src="./images/sbt_90.png">   
-<img src="./images/sbt_103.png"> 
-<img src="./images/sbt_107.png"> 
-<img src="./images/sbt_37.png"> 
- 
+### Development Setup
 
+```bash
+git clone https://github.com/your-repo/semantic_bit_theory.git
+cd semantic_bit_theory/semantic_bit
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+```
 
-## Goal: 
-Encode and decode time-spanning events into a compact, symbolic system that captures “what it all means” as stories evolve.
+## Quick Start
 
-## Core unit (“semantic bit”): 
-A minimal piece of meaning that situates something in a story along simple, universal semantic splits.
+### Python API
+```python
+from semantic_bit import encode_text_to_sb, decode_sb_to_dot
 
-## Scope: 
-Semantic encoding, representations, and narratives over time.
-Dual Axes (Taxonomic Splits)
+# Encode text to semantic triples
+text = "The cat is sitting on the mat."
+semantic_bits = encode_text_to_sb(text)
+print(semantic_bits)
+# {"sentences": [{"point1": "The cat", "line1": "is sitting on", "point2": "the mat"}]}
 
-- Noun vs Verb: Entities/things vs actions/relations.
-- Object vs Predicate: The “thing” vs the statement/property about it.
-- Particle vs Wave: Discrete item vs extended, evolving state across time.
-- Person vs Feeling: A subject/agent vs the internal state that subject experiences.
+# Generate DOT graph
+dot_graph = decode_sb_to_dot(semantic_bits)
+print(dot_graph)
+# digraph SBGraph { p1 [label="The cat"]; p2 [label="the mat"]; p1 -> p2 [label="is sitting on"]; }
+```
 
+### Command Line Interface
+```bash
+# Encode text to semantic JSON
+semantic-bit encode "The cat is sitting on the mat."
+semantic-bit encode --file input.txt --out output.json
 
-## How It Works (Intuition)
+# Decode JSON to DOT graph  
+semantic-bit decode --file output.json --out graph.dot
 
-- Bits as roles: Each semantic bit places a piece of information on one side of a split (e.g., noun vs verb) to clarify its role in meaning.
-- Compositionality: Bits combine into higher-level structures—events, arcs, then stories—preserving who did what, to whom, with what state, over time.
-- Time encoding: “Wave-like” bits track persistence and change (e.g., moods, intentions), while “particle-like” bits mark discrete events.
+# Pipeline operations
+semantic-bit encode --file input.txt | semantic-bit decode --name "MyGraph"
+```
 
-## Simple Example
+## Documentation
 
-“Alice loves Bob on Monday.”
-Noun/Object: Alice, Bob
-Verb/Predicate: loves
-Particle: the Monday event of expressing love
-Wave: the ongoing state of love across days
-Person vs Feeling: Alice (person) having love (feeling)
+### 📖 [Examples and Usage Patterns](docs/examples.md)
+Comprehensive examples covering file processing, pipeline operations, visualization, and integration with other tools. Includes sample files and common usage patterns.
 
-## Why These Splits Help
+### 🧪 [Testing Guide](docs/testing.md)  
+Complete testing documentation with 62+ tests covering all functionality. Includes test execution instructions, organization details, and troubleshooting guidance.
 
-- Clarity: Forces each piece of data into a crisp role, reducing ambiguity.
-- Portability: Simple, universal distinctions travel well across domains.
-- Narrative fit: Cleanly models both snapshots (events) and continuities (states).
+### 🔬 [Theoretical Framework](docs/theory.md)
+Deep dive into Semantic Bit Theory concepts, taxonomic principles, and philosophical foundations. Covers the dual axes framework and applications in knowledge graphs, narrative analytics, and affective computing.
 
-## Positioning
+### 📋 [Technical Specification](docs/semantic_bit_analysis.md)
+Detailed technical analysis of the implementation including architecture, algorithms, and JSON schema specifications.
 
-Compared to logic/graphs: Like subject–predicate graphs and event schemas, but organized explicitly around a few stable semantic axes.
-Use cases: Story understanding, event logging, knowledge graphs, affective computing—anywhere meaning evolves over time.
+## Project Structure
 
-## Why this helps
+```
+semantic_bit_theory/
+├── README.md                 # This file - main project documentation
+├── semantic_bit/             # Python package directory
+│   ├── src/semantic_bit/     # Source code
+│   ├── tests/                # Test suite (62+ tests)
+│   └── README.md             # Package-specific documentation
+├── docs/                     # Documentation
+│   ├── examples.md           # Usage examples and patterns
+│   ├── testing.md            # Testing guide
+│   ├── theory.md             # Conceptual framework
+│   └── semantic_bit_analysis.md # Technical specification
+├── examples/                 # Sample files and demonstrations
+└── images/                   # Conceptual diagrams and visualizations
+```
 
-### Disambiguation:    
-Each token is forced into crisp roles along the splits, reducing ambiguity.
-### Time-awareness:    
-Particle vs wave keeps events and states distinct but connected.
-### Human-centric:    
-Person vs feeling captures inner state alongside action, improving narrative fidelity.
+## Contributing
+
+We welcome contributions! Please see our testing guide for information about running tests and our examples documentation for usage patterns.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and add tests
+4. Run the test suite (`pytest`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## License
+
+MIT License - see the LICENSE file for details.
