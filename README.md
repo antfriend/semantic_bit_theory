@@ -28,92 +28,20 @@ o_o
 - Use person/feeling to track internal states alongside actions; power empathetic assistants, mental health journaling, and adaptive UX or NPC behavior.
 
 
-<img src="./sbt_121.png">   
+<img src="./images/sbt_121.png">   
 <h2> "You keep saying that word. I don't think it means what you think it means." -- Princess Bride</h2>
-<img src="./sbt_17.png">    
-<img src="./sbt_1.png">   
-<img src="./sbt_19.png"> 
-<img src="./sbt_35.png">   
-<img src="./sbt_23.png">   
-<img src="./sbt_5.png">
-<img src="./sbt_63.png">
-<img src="./sbt_90.png">   
-<img src="./sbt_103.png"> 
-<img src="./sbt_107.png"> 
-<img src="./sbt_37.png"> 
+<img src="./images/sbt_17.png">    
+<img src="./images/sbt_1.png">   
+<img src="./images/sbt_19.png"> 
+<img src="./images/sbt_35.png">   
+<img src="./images/sbt_23.png">   
+<img src="./images/sbt_5.png">
+<img src="./images/sbt_63.png">
+<img src="./images/sbt_90.png">   
+<img src="./images/sbt_103.png"> 
+<img src="./images/sbt_107.png"> 
+<img src="./images/sbt_37.png"> 
  
-## Schema + Examples
-- Schema: `schema/semantic-bit.schema.json`
-- Valid instances: `examples/alice-bob.json`, `examples/market.json`
-- Invalid instance (for testing): `examples/invalid/invalid-bit.json`
-
-Validate with any JSON Schema Draft-07 validator. Examples:
-- Node (ajv-cli): `npx ajv validate -s schema/semantic-bit.schema.json -d examples/*.json`
-- Python (jsonschema):
-  - `python -c "import json,sys,jsonschema; s=json.load(open('schema/semantic-bit.schema.json'));\nimport glob;\n[jsonschema.validate(json.load(open(p)), s) for p in glob.glob('examples/*.json')];\nprint('ok')"`
-
-Or use the included friendly validator (falls back if `jsonschema` is not installed):
-- `python tools/validate.py`  
-  Validates `examples/*.json` and `examples/invalid/*.json` and prints per-file results.
-- Validate custom paths: `python tools/validate.py examples/*.json` 
-
-## Overlays
-- Annotation schema: `schema/semantic-annotation.schema.json`
-- Legend/colors: `overlays/legend.json`
-- Placeholder annotations for `sbt_23.png`: `annotations/sbt_23.json` (adjust coordinates/labels to match the image).
-- Renderer: `tools/render_overlay.py`
-
-Render an SVG overlay (no external deps):
-- `python tools/render_overlay.py annotations/sbt_23.json overlays/sbt_23.overlay.svg --legend overlays/legend.json`
-
-Guidance:
-- Tag nouns/objects vs verbs/predicates; use bands for wave states and dots for particle events.
-- Use links: `updates_state`, `terminates_state`, `caused_by` to connect events and states.
-
-## PNG Inspection
-- Script: `tools/png_stats.py`
-- Basics: `python3 tools/png_stats.py sbt_23.png`
-- With histograms: `python3 tools/png_stats.py sbt_23.png --hist --bins 16`
-- With ASCII preview: `python3 tools/png_stats.py sbt_23.png --ascii --width 80`
-
-Outputs:
-- Reports size, bit depth, color type, interlace, and average color for RGB/RGBA 8‑bit PNGs.
-- Histograms: per‑channel relative bars with configurable bins.
-- ASCII: grayscale preview (no ANSI), auto aspect-corrected for terminals.
-
-## Text Extraction (OCR)
-- Quick CLI (requires Tesseract installed):
-  - Windows (PowerShell): `Get-ChildItem *.png | % { tesseract $_.FullName (Join-Path "text" $_.BaseName) -l eng --psm 6 }`
-    - Create output dir first: `New-Item -ItemType Directory -Force text`
-  - macOS/Linux (bash): `mkdir -p text && for f in *.png; do tesseract "$f" "text/${f%.*}" -l eng --psm 6; done`
-- Python helper: `tools/ocr_extract.py` (uses Pillow + pytesseract)
-  - Install deps: `pip install pillow pytesseract` and install Tesseract OCR engine (brew/choco/scoop/apt).
-  - Example: `python tools/ocr_extract.py sbt_*.png --outdir text --lang eng --psm 6 --scale 1.5 --preprocess thresh`
-  - Writes one `.txt` per image under `text/`.
-
-## CI
-- GitHub Actions workflow: `.github/workflows/validate.yml`
-- On each push/PR it:
-  - Installs Python and `jsonschema`.
-  - Validates all valid examples: `python tools/validate.py examples/*.json`.
-  - Ensures invalid examples fail validation (job fails if they don’t).
-
-## Pre-commit Hook
-- Config: `.pre-commit-config.yaml`
-- Installs a local hook that runs `python tools/validate.py` on staged JSON files under `examples/` (excluding `examples/invalid/`).
-
-Setup:
-- `pip install pre-commit`
-- `pre-commit install`
-- Optional one-time run on entire repo: `pre-commit run --all-files`
-
-Notes:
-- The hook installs `jsonschema` in its own environment for full validation.
-- Invalid examples are excluded from the hook but enforced by CI.
-
-Both example files reference the schema via `$schema` and demonstrate:
-- Person/feeling wave state updated by a particle event (`examples/alice-bob.json`).
-- Market wave trend terminated by a particle crash (`examples/market.json`).
 
 
 ## Goal: 
