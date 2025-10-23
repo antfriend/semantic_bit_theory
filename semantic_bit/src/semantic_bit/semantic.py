@@ -1,223 +1,471 @@
-"""Semantic Bit encoder/decoder.
+"""Semantic Bit Theory - Core Processing Module
 
-This module implements a minimal, heuristic-based interpretation of
-"Semantic Bit Theory" as described in the project notes:
+This module implements the foundational components of Semantic Bit Theory (SBT),
+providing lightweight, dependency-free semantic parsing and graph generation.
 
-- Encode English text into simple Point/Line structures
-- Decode those structures to Graphviz DOT
+Core Functions:
+- encode_text_to_sb(): Convert natural language text into Point-Line-Point triples
+- decode_sb_to_dot(): Transform semantic triples into Graphviz DOT graphs
 
-The heuristics are intentionally lightweight (no external NLP deps):
-  * Split text into sentences by punctuation (.!?).
-  * Within each sentence, collect a leading noun phrase as point1,
-    a verb phrase as line1 (aux/verb + optional preposition), and
-    a trailing noun phrase as point2.
-  * If a sentence does not match this shape, it is skipped.
+The implementation follows a three-phase linguistic analysis:
+1. Sentence Segmentation: Split text at sentence boundaries
+2. Lexical Analysis: Tokenize while preserving surface forms  
+3. Syntactic Role Assignment: Extract Point₁, Line, Point₂ using heuristics
 
-These choices satisfy the example: "The cat is sitting on the matt." ->
-{"point1":"The cat", "line1":"is sitting on", "point2":"the matt"}
+Design Philosophy:
+- High precision over high recall (conservative extraction)
+- Zero external dependencies for maximum portability
+- Graceful degradation when sentences don't match expected patterns
+- Transparent, interpretable processing pipeline
+
+Example:
+    "The cat is sitting on the mat." → 
+    {"point1": "The cat", "line1": "is sitting on", "point2": "the mat"}
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Sequence
+from typing import Dict, List, Sequence, Tuple, Optional
 import re
 
-# Basic tokenization retaining simple words (with apostrophes)
-_WORD_RE = re.compile(r"\b[\w']+\b")
+# =============================================================================
+# Linguistic Pattern Definitions
+# =============================================================================
 
-# Common auxiliaries and verb indicators; used to detect the verb phrase
-_AUXILIARIES = {
-    "am",
-    "is",
-    "are",
-    "was",
-    "were",
-    "be",
-    "been",
-    "being",
-    "have",
-    "has",
-    "had",
-    "do",
-    "does",
-    "did",
-    "can",
-    "could",
-    "will",
-    "would",
-    "shall",
-    "should",
-    "may",
-    "might",
-    "must",
+# Tokenization pattern: words including contractions and possessives
+_WORD_PATTERN = re.compile(r"\b[\w']+\b")
+
+# Sentence boundary pattern: split on .!? followed by whitespace or end of text
+_SENTENCE_BOUNDARY = re.compile(r"(?<=[.!?])\s+")
+
+# Auxiliary verbs: core structural elements indicating verb phrases
+_AUXILIARY_VERBS = {
+    # Primary auxiliaries
+    "am", "is", "are", "was", "were", "be", "been", "being",
+    # Perfect auxiliaries  
+    "have", "has", "had",
+    # Do-support auxiliaries
+    "do", "does", "did",
+    # Modal auxiliaries
+    "can", "could", "will", "would", "shall", "should", 
+    "may", "might", "must", "ought",
 }
 
-# Prepositions commonly tied to a verb phrase in simple clauses
-_PREPOSITIONS = {
-    "on",
-    "in",
-    "at",
-    "to",
-    "from",
-    "with",
-    "by",
-    "for",
-    "of",
-    "over",
-    "under",
-    "into",
-    "onto",
-    "about",
-    "through",
+# Prepositions that commonly attach to verb phrases
+_VERBAL_PREPOSITIONS = {
+    # Spatial prepositions
+    "on", "in", "at", "over", "under", "above", "below", "beside",
+    "through", "across", "around", "into", "onto", "upon",
+    # Directional prepositions
+    "to", "from", "toward", "towards", "away",
+    # Temporal prepositions  
+    "during", "before", "after", "since", "until",
+    # Abstract prepositions
+    "with", "without", "by", "for", "of", "about", "against",
 }
 
-# Simple determiners to help group noun phrases
-_DETERMINERS = {"the", "a", "an", "this", "that", "these", "those", "my", "your", "his", "her", "its", "our", "their"}
+# Determiners: help identify noun phrase boundaries
+_DETERMINERS = {
+    # Articles
+    "the", "a", "an",
+    # Demonstratives
+    "this", "that", "these", "those",
+    # Possessives
+    "my", "your", "his", "her", "its", "our", "their",
+    # Quantifiers (basic)
+    "some", "any", "many", "few", "several", "all", "no",
+}
+
+
+# =============================================================================
+# Data Structures
+# =============================================================================
+
+@dataclass
+class Token:
+    """Represents a single lexical token with its surface form and normalized form."""
+    text: str          # Original surface form (preserves casing, punctuation)
+    normalized: str    # Lowercased form for linguistic analysis
+    
+    def __post_init__(self) -> None:
+        """Ensure normalized form is properly lowercased."""
+        self.normalized = self.text.lower()
+
+
+@dataclass  
+class SBTriple:
+    """Represents a semantic triple: Point₁ ← Line → Point₂"""
+    point1: str  # Subject entity or concept
+    line1: str   # Relationship, action, or semantic connector
+    point2: str  # Object entity or target concept
+    
+    def to_dict(self) -> Dict[str, str]:
+        """Convert triple to dictionary format for JSON serialization."""
+        return {
+            "point1": self.point1,
+            "line1": self.line1, 
+            "point2": self.point2
+        }
+    
+    def is_valid(self) -> bool:
+        """Check if triple contains non-empty components."""
+        return bool(self.point1.strip() and self.line1.strip() and self.point2.strip())
 
 
 @dataclass
-class SBTriple:
-    point1: str
-    line1: str
-    point2: str
-
-    def to_dict(self) -> Dict[str, str]:
-        return {"point1": self.point1, "line1": self.line1, "point2": self.point2}
-
-
-def _split_sentences(text: str) -> List[str]:
-    # Split on ., !, ? followed by space or end, keep simple; remove empties
-    parts = re.split(r"(?<=[.!?])\s+", text.strip())
-    return [p.strip() for p in parts if p.strip()]
-
-
-def _tokens(sentence: str) -> List[Dict[str, str]]:
-    return [{"text": m.group(0), "lower": m.group(0).lower()} for m in _WORD_RE.finditer(sentence)]
+class SemanticBitDocument:
+    """Container for multiple semantic triples extracted from text."""
+    sentences: List[SBTriple]
+    
+    def to_dict(self) -> Dict[str, List[Dict[str, str]]]:
+        """Convert document to dictionary format for JSON serialization.""" 
+        return {
+            "sentences": [triple.to_dict() for triple in self.sentences if triple.is_valid()]
+        }
+    
+    def add_triple(self, triple: SBTriple) -> None:
+        """Add a triple to the document if it's valid."""
+        if triple.is_valid():
+            self.sentences.append(triple)
 
 
-def _looks_like_verb(word_lower: str) -> bool:
-    # Auxiliary or a simple verb morphology heuristic
-    if word_lower in _AUXILIARIES:
+# =============================================================================
+# Phase 1: Sentence Segmentation 
+# =============================================================================
+
+def segment_sentences(text: str) -> List[str]:
+    """Split text into discrete sentences at punctuation boundaries.
+    
+    Uses sentence-ending punctuation (.!?) followed by whitespace or end-of-text
+    as segmentation boundaries. Preserves sentence-level semantic scope.
+    
+    Args:
+        text: Input text to segment
+        
+    Returns:
+        List of sentence strings, stripped of leading/trailing whitespace
+    """
+    if not text or not text.strip():
+        return []
+    
+    # Split on sentence boundaries and filter empty results
+    sentences = _SENTENCE_BOUNDARY.split(text.strip())
+    return [sentence.strip() for sentence in sentences if sentence.strip()]
+
+
+# =============================================================================
+# Phase 2: Lexical Analysis
+# =============================================================================
+
+def tokenize_sentence(sentence: str) -> List[Token]:
+    """Convert a sentence into a sequence of tokens.
+    
+    Uses regex pattern matching to extract words while preserving:
+    - Contractions (don't, won't, etc.)
+    - Possessives (cat's, children's, etc.) 
+    - Original surface form casing
+    
+    Args:
+        sentence: Input sentence to tokenize
+        
+    Returns:
+        List of Token objects with text and normalized forms
+    """
+    if not sentence or not sentence.strip():
+        return []
+        
+    tokens = []
+    for match in _WORD_PATTERN.finditer(sentence):
+        word = match.group(0)
+        tokens.append(Token(text=word, normalized=word.lower()))
+    
+    return tokens
+
+
+# =============================================================================
+# Phase 3: Syntactic Role Assignment
+# =============================================================================
+
+def is_verb_like(token: Token) -> bool:
+    """Determine if a token exhibits verb-like characteristics.
+    
+    Uses both lexical lookup and morphological pattern matching to identify
+    potential verb tokens that can anchor semantic relationships.
+    
+    Args:
+        token: Token to analyze
+        
+    Returns:
+        True if token appears to be verb-like, False otherwise
+    """
+    word = token.normalized
+    
+    # Direct auxiliary verb lookup
+    if word in _AUXILIARY_VERBS:
         return True
-    if word_lower.endswith("ing") or word_lower.endswith("ed"):
+    
+    # Morphological verb indicators
+    if word.endswith("ing") or word.endswith("ed"):
         return True
+        
+    # Additional common verb patterns
+    if len(word) > 3 and word.endswith("s") and word[:-1] in _AUXILIARY_VERBS:
+        return True  # handles "goes", "does", etc.
+    
     return False
 
 
-def _collect_phrase(tokens: Sequence[Dict[str, str]], idx: int, *, include_prepositions: bool) -> (str, int):
-    if idx >= len(tokens):
-        return "", idx
+def extract_point1(tokens: List[Token], start_idx: int = 0) -> Tuple[str, int]:
+    """Extract the initial noun phrase (Point₁) from token sequence.
+    
+    Collects tokens from start_idx until encountering a verb-like pattern,
+    representing the subject entity or concept in the semantic relationship.
+    
+    Args:
+        tokens: List of tokens to process
+        start_idx: Starting position in token list
+        
+    Returns:
+        Tuple of (extracted_phrase, next_index)
+    """
+    if start_idx >= len(tokens):
+        return "", start_idx
+    
+    current_idx = start_idx
+    phrase_tokens = []
+    
+    # Collect tokens until we hit a verb-like token
+    while current_idx < len(tokens):
+        token = tokens[current_idx]
+        
+        # Stop at obvious verb indicators (but only after collecting at least one token)
+        if phrase_tokens and is_verb_like(token):
+            break
+            
+        phrase_tokens.append(token.text)
+        current_idx += 1
+    
+    phrase = " ".join(phrase_tokens).strip()
+    return phrase, current_idx
 
-    start = idx
 
-    # If noun phrase: optionally determiners + words until a verb-ish token
-    if not include_prepositions:
-        # Gather until we hit a clear verb indicator
-        seen_word = False
-        while idx < len(tokens):
-            t = tokens[idx]
-            lower = t["lower"]
-            # stop at obvious verb start
-            if _looks_like_verb(str(lower)) and seen_word:
-                break
-            seen_word = True
-            idx += 1
-        phrase = _reconstruct(tokens, start, idx)
-        return phrase, idx
-
-    # Verb phrase: must include at least one verb-like token; extend through optional preposition
-    saw_verb = False
-    while idx < len(tokens):
-        lower = tokens[idx]["lower"]
-        if _looks_like_verb(lower) or (include_prepositions and (lower in _PREPOSITIONS or lower in _AUXILIARIES)):
-            saw_verb = True or saw_verb
-            idx += 1
+def extract_line(tokens: List[Token], start_idx: int) -> Tuple[str, int]:
+    """Extract the verb phrase with optional preposition (Line) from token sequence.
+    
+    Identifies the core relationship through verb phrase recognition, including
+    auxiliary verbs and optionally attached prepositions for phrasal constructions.
+    
+    Args:
+        tokens: List of tokens to process
+        start_idx: Starting position in token list
+        
+    Returns:
+        Tuple of (extracted_phrase, next_index)  
+    """
+    if start_idx >= len(tokens):
+        return "", start_idx
+    
+    current_idx = start_idx
+    phrase_tokens = []
+    found_verb = False
+    
+    # First, collect all verb-like tokens
+    while current_idx < len(tokens):
+        token = tokens[current_idx]
+        
+        if is_verb_like(token):
+            phrase_tokens.append(token.text)
+            found_verb = True
+            current_idx += 1
+        elif found_verb:
+            # After finding verbs, stop at non-verb tokens
+            break
         else:
-            # Stop when hitting something that looks like start of the next noun phrase
-            if saw_verb:
-                break
-            # If we haven't seen a verb yet but encounter auxiliaries, keep them
-            if lower in _AUXILIARIES:
-                idx += 1
-            else:
-                # Not verb-like; stop to avoid consuming noun phrase
-                break
-    # If the token immediately after verb(s) is a preposition, include exactly one
-    if idx < len(tokens):
-        next_lower = tokens[idx]["lower"]
-        if next_lower in _PREPOSITIONS:
-            idx += 1
-    phrase = _reconstruct(tokens, start, idx)
-    return phrase, idx
+            # Haven't found a verb yet - this might be a determiner before object
+            break
+    
+    # Optionally attach a single preposition
+    if current_idx < len(tokens) and found_verb:
+        next_token = tokens[current_idx]
+        if next_token.normalized in _VERBAL_PREPOSITIONS:
+            phrase_tokens.append(next_token.text)
+            current_idx += 1
+    
+    phrase = " ".join(phrase_tokens).strip()
+    return phrase, current_idx
 
 
-def _reconstruct(tokens: Sequence[Dict[str, str]], start: int, end: int) -> str:
-    if start >= end:
-        return ""
-    return " ".join(t["text"] for t in tokens[start:end]).strip()
+def extract_point2(tokens: List[Token], start_idx: int) -> Tuple[str, int]:
+    """Extract the remaining noun phrase (Point₂) from token sequence.
+    
+    Collects all remaining tokens as the object entity or target concept
+    in the semantic relationship.
+    
+    Args:
+        tokens: List of tokens to process
+        start_idx: Starting position in token list
+        
+    Returns:
+        Tuple of (extracted_phrase, next_index)
+    """
+    if start_idx >= len(tokens):
+        return "", start_idx
+    
+    # Collect all remaining tokens as the object phrase
+    phrase_tokens = [token.text for token in tokens[start_idx:]]
+    phrase = " ".join(phrase_tokens).strip()
+    
+    return phrase, len(tokens)
 
+
+# =============================================================================
+# Main Encoding Function
+# =============================================================================
 
 def encode_text_to_sb(text: str) -> Dict[str, List[Dict[str, str]]]:
-    """Encode text into Semantic Bit triples.
-
-    Returns a dict with a single key "sentences" containing a list of
-    {point1, line1, point2} mappings.
+    """Encode natural language text into Semantic Bit triples.
+    
+    Implements the complete three-phase linguistic analysis pipeline:
+    1. Sentence Segmentation: Split text at punctuation boundaries
+    2. Lexical Analysis: Tokenize while preserving surface forms
+    3. Syntactic Role Assignment: Extract Point₁, Line, Point₂ using heuristics
+    
+    Args:
+        text: Input natural language text
+        
+    Returns:
+        Dictionary with "sentences" key containing list of semantic triples.
+        Each triple has "point1", "line1", "point2" string keys.
+        
+    Example:
+        >>> encode_text_to_sb("The cat is sitting on the mat.")
+        {"sentences": [{"point1": "The cat", "line1": "is sitting on", "point2": "the mat"}]}
     """
-    results: List[Dict[str, str]] = []
-    for sentence in _split_sentences(text):
-        toks = _tokens(sentence)
-        if not toks:
+    if not text or not text.strip():
+        return {"sentences": []}
+    
+    document = SemanticBitDocument(sentences=[])
+    
+    # Phase 1: Sentence Segmentation
+    sentences = segment_sentences(text)
+    
+    for sentence in sentences:
+        # Phase 2: Lexical Analysis
+        tokens = tokenize_sentence(sentence)
+        if not tokens:
             continue
+        
+        # Phase 3: Syntactic Role Assignment
+        point1, line_start = extract_point1(tokens)
+        if not point1:
+            continue  # Skip sentences without clear subject
+            
+        line1, point2_start = extract_line(tokens, line_start)
+        if not line1:
+            continue  # Skip sentences without clear verb phrase
+            
+        point2, _ = extract_point2(tokens, point2_start)
+        if not point2:
+            continue  # Skip sentences without clear object
+        
+        # Create and validate triple
+        triple = SBTriple(point1=point1, line1=line1, point2=point2)
+        document.add_triple(triple)
+    
+    return document.to_dict()
 
-        # point1 ~ leading noun phrase
-        p1, idx = _collect_phrase(toks, 0, include_prepositions=False)
-        if not p1:
-            continue
 
-        # line1 ~ verb phrase (+ optional preposition)
-        l1, idx2 = _collect_phrase(toks, idx, include_prepositions=True)
-        if not l1:
-            continue
+# =============================================================================
+# Graph Synthesis Pipeline  
+# =============================================================================
 
-        # point2 ~ trailing noun phrase
-        p2, _ = _collect_phrase(toks, idx2, include_prepositions=False)
-        if not p2:
-            continue
-
-        results.append(SBTriple(p1, l1, p2).to_dict())
-
-    return {"sentences": results}
+def escape_dot_string(text: str) -> str:
+    """Escape special characters for DOT format compliance.
+    
+    Ensures that node labels and edge labels are properly escaped
+    to prevent DOT syntax errors.
+    
+    Args:
+        text: Raw text to escape
+        
+    Returns:
+        DOT-safe escaped string
+    """
+    if not text:
+        return ""
+    
+    # Escape quotes and backslashes for DOT format
+    escaped = text.replace('\\', '\\\\')  # Escape backslashes first
+    escaped = escaped.replace('"', '\\"')  # Then escape quotes
+    escaped = escaped.replace('\n', '\\n')  # Handle newlines
+    escaped = escaped.replace('\t', '\\t')  # Handle tabs
+    
+    return escaped
 
 
 def decode_sb_to_dot(sb: Dict[str, List[Dict[str, str]]], graph_name: str = "SBGraph") -> str:
-    """Decode Semantic Bit JSON structure to a Graphviz DOT string."""
-    lines: List[str] = [f"digraph {graph_name} {{"]
-
-    node_ids: Dict[str, str] = {}
-    next_id = 1
-
-    def get_node_id(label: str) -> str:
-        nonlocal next_id
-        if label not in node_ids:
-            node_id = f"p{next_id}"
-            next_id += 1
-            node_ids[label] = node_id
-            # Quote label; escape quotes
-            safe_label = label.replace('"', '\\"')
-            lines.append(f'  {node_id} [label="{safe_label}"];')
-        return node_ids[label]
-
-    for entry in sb.get("sentences", []):
-        p1 = entry.get("point1", "")
-        l1 = entry.get("line1", "")
-        p2 = entry.get("point2", "")
-        if not p1 or not p2 or not l1:
+    """Transform Semantic Bit triples into Graphviz DOT format.
+    
+    Implements the complete graph synthesis pipeline:
+    - Node Consolidation: Deduplicate identical point labels
+    - Edge Construction: Create directed relationships
+    - Output Generation: Produce standards-compliant DOT
+    
+    Args:
+        sb: Semantic Bit document dictionary with "sentences" key
+        graph_name: Name for the generated graph (default: "SBGraph")
+        
+    Returns:
+        Complete DOT format string ready for Graphviz processing
+        
+    Example:
+        >>> sb = {"sentences": [{"point1": "The cat", "line1": "is sitting on", "point2": "the mat"}]}
+        >>> decode_sb_to_dot(sb)
+        'digraph SBGraph {\\n  p1 [label="The cat"];\\n  p2 [label="the mat"];\\n  p1 -> p2 [label="is sitting on"];\\n}'
+    """
+    if not sb or "sentences" not in sb:
+        return f'digraph {graph_name} {{\n}}'
+    
+    dot_lines = [f'digraph {graph_name} {{']
+    
+    # Node consolidation: track unique point labels  
+    node_registry: Dict[str, str] = {}
+    node_counter = 1
+    
+    def get_or_create_node_id(point_label: str) -> str:
+        """Get existing node ID or create new one for a point label."""
+        nonlocal node_counter
+        
+        if point_label not in node_registry:
+            # Create new node with systematic ID
+            node_id = f"p{node_counter}"
+            node_counter += 1
+            node_registry[point_label] = node_id
+            
+            # Add node definition to DOT output
+            safe_label = escape_dot_string(point_label)
+            dot_lines.append(f'  {node_id} [label="{safe_label}"];')
+        
+        return node_registry[point_label]
+    
+    # Edge construction: process all semantic triples
+    for triple_dict in sb.get("sentences", []):
+        point1 = triple_dict.get("point1", "").strip()
+        line1 = triple_dict.get("line1", "").strip()  
+        point2 = triple_dict.get("point2", "").strip()
+        
+        # Skip incomplete triples
+        if not (point1 and line1 and point2):
             continue
-        a = get_node_id(p1)
-        b = get_node_id(p2)
-        safe_edge = l1.replace('"', '\\"')
-        lines.append(f'  {a} -> {b} [label="{safe_edge}"];')
-
-    lines.append("}")
-    return "\n".join(lines)
+        
+        # Get or create node IDs for both points
+        node1_id = get_or_create_node_id(point1)
+        node2_id = get_or_create_node_id(point2)
+        
+        # Create directed edge with semantic label
+        safe_edge_label = escape_dot_string(line1)
+        dot_lines.append(f'  {node1_id} -> {node2_id} [label="{safe_edge_label}"];')
+    
+    dot_lines.append('}')
+    return '\n'.join(dot_lines)
