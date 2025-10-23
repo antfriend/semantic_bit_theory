@@ -43,6 +43,32 @@ Where:
 - `line1`: Relationship, action, or semantic connector  
 - `point2`: Object entity or target concept
 
+#### Formal JSON Schema
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "sentences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["point1", "line1", "point2"],
+        "properties": {
+          "point1": { "type": "string", "minLength": 1 },
+          "line1": { "type": "string", "minLength": 1 },
+          "point2": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": ["sentences"],
+  "additionalProperties": false
+}
+```
+
 ### Encoding Pipeline
 
 **Module**: `semantic_bit.semantic.encode_text_to_sb(text)`
@@ -319,4 +345,3 @@ semantic-bit encode "The quick brown fox jumps over the lazy dog."
 **Compatibility**: Python 3.8+ with setuptools packaging
 **Distribution**: PyPI-compatible wheel and source distributions
 **Installation**: `pip install semantic-bit` for end-user deployment
-
