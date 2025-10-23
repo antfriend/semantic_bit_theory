@@ -1,1 +1,19 @@
-Semantic Bit
+Semantic Bit Updates
+
+This Python integration package implements Semantic Bit Theory. This package encodes and decodes JSON graph data from English text.
+
+The encode process flow goes:
+   1. Input text as a file or text block. 
+   2. Encode text
+      a. For each word in a sentence, decide is it a "Point" or a "Line" type of word? The "Line" words are verbs or verb form words. All other words may be assumed to be a "Point" or Noun type of word. For example in the sentence, "The cat is sitting on the matt.", this would be encoded as, {"point1":"The cat","line1":"is sitting on", "point2": "the matt"}
+   3. Output the JSON as a file
+
+The decode process flow goes:
+   1. Input SB encoded JSON
+   2. Decode JSON as a "dot" graph description language file
+
+Create a console app to test this.
+
+In a future version we want to make "Line" entities able to execute named functions or events.
+
+For now create an analysis and implementation document in the "docs" folder for our review.
