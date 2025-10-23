@@ -1,0 +1,14 @@
+digraph MultiGraph {
+  p1 [label="The cat"];
+  p2 [label="the mat"];
+  p1 -> p2 [label="is sitting on"];
+  p3 [label="The dog"];
+  p4 [label="the park"];
+  p3 -> p4 [label="is running in"];
+  p5 [label="Birds"];
+  p6 [label="south for winter"];
+  p5 -> p6 [label="are flying"];
+  p7 [label="The children"];
+  p8 [label="outside"];
+  p7 -> p8 [label="are playing"];
+}

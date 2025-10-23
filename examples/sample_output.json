@@ -1,0 +1,24 @@
+{
+  "sentences": [
+    {
+      "point1": "The cat",
+      "line1": "is sitting on",
+      "point2": "the mat"
+    },
+    {
+      "point1": "The dog",
+      "line1": "is running in",
+      "point2": "the park"
+    },
+    {
+      "point1": "Birds",
+      "line1": "are flying",
+      "point2": "south for winter"
+    },
+    {
+      "point1": "The children",
+      "line1": "are playing",
+      "point2": "outside"
+    }
+  ]
+}
