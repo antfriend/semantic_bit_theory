@@ -63,26 +63,14 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     p_decode.add_argument("-o", "--out", type=Path, help="Output DOT file (default stdout)")
     p_decode.add_argument("--name", type=str, default="SBGraph", help="Graph name")
 
-    # Back-compat: allow old style without subcommand
-    parser.add_argument("text", nargs="?", help=argparse.SUPPRESS)
-    parser.add_argument("-f", "--file", type=Path, help=argparse.SUPPRESS)
-    parser.add_argument("--indent", type=int, default=2, help=argparse.SUPPRESS)
-    parser.add_argument("--no-indent", action="store_true", help=argparse.SUPPRESS)
+    # Note: backward compatibility is handled by detecting cmd=None below
 
     args = parser.parse_args(list(argv) if argv is not None else None)
 
-    # Dispatch based on subcommand or fall back to analyze
+    # Dispatch based on subcommand
     cmd = args.cmd
     if cmd is None:
-        # Back-compat analyze behavior
-        if args.text and args.file:
-            parser.error("Provide either inline text or --file, not both.")
-        text = _load_text(args.text, args.file)
-        result = analyze_text(text)
-        indent = None if getattr(args, "no_indent", False) else getattr(args, "indent", 2)
-        json_output = json.dumps(result, ensure_ascii=False, indent=indent)
-        print(json_output)
-        return 0
+        parser.error("A subcommand is required. Use 'analyze', 'encode', or 'decode'.")
 
     if cmd == "analyze":
         if args.text and args.file:
