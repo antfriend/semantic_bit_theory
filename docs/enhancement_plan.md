@@ -100,12 +100,14 @@ def validate_text_for_encoding(text: str, max_chars: int = 10000) -> Tuple[bool,
     Validate that text can be successfully encoded to SB JSON.
 
     Checks:
-    1. Text can be JSON serialized (no invalid characters)
-    2. Text length is below character limit
-    3. Text contains at least one valid sentence
+    1. Text length is below character limit
+    2. Text contains at least one sentence after segmentation
+    3. At least one sentence can produce a valid pattern
 
     Returns:
         (is_valid, error_message)
+
+    Note: Python strings are inherently JSON-safe, no serialization check needed.
     """
 ```
 
@@ -202,44 +204,71 @@ The requirement "SB JSON is not required to always be triples in a Point, Line, 
   ]
 }
 
-// ENHANCED (Flexible)
+// ENHANCED (Flexible) - Always-Object Structure
 {
+  "version": "2.0",
   "sentences": [
     // Pattern 1: Point only
     {
       "type": "point",
-      "content": "A cactus"
+      "content": {
+        "content": "A cactus"
+      },
+      "original_text": "A cactus."
     },
 
     // Pattern 2: Line only
     {
       "type": "line",
-      "content": "What is"
+      "content": {
+        "content": "What is"
+      },
+      "original_text": "What is?"
     },
 
     // Pattern 3: Point-Line-Point (classic)
     {
       "type": "triple",
-      "point1": "The cat",
-      "line1": "is sitting on",
-      "point2": "the mat"
+      "point1": {
+        "content": "The cat"
+      },
+      "line1": {
+        "content": "is sitting on"
+      },
+      "point2": {
+        "content": "the mat"
+      },
+      "original_text": "The cat is sitting on the mat."
     },
 
     // Pattern 4: Line-Point
     {
       "type": "line-point",
-      "line": "What is",
-      "point": "a cactus"
+      "line": {
+        "content": "What is"
+      },
+      "point": {
+        "content": "a cactus"
+      },
+      "original_text": "What is a cactus?"
     },
 
     // Pattern 5: Point-Line
     {
       "type": "point-line",
-      "point": "The dog",
-      "line": "barks"
+      "point": {
+        "content": "The dog"
+      },
+      "line": {
+        "content": "barks"
+      },
+      "original_text": "The dog barks."
     }
   ]
 }
+
+Note: Points and Lines are ALWAYS objects with "content" field.
+Assets/functions are optional and only appear when mappings exist.
 ```
 
 ---
@@ -261,7 +290,10 @@ The requirement "SB JSON is not required to always be triples in a Point, Line, 
 JSON Output:
 {
   "type": "point",
-  "content": "Interesting."
+  "content": {
+    "content": "Interesting."
+  },
+  "original_text": "Interesting."
 }
 ```
 
@@ -270,12 +302,16 @@ JSON Output:
 - When in doubt, treat utterance as a conceptual declaration
 - Aligns with "particle" in particle/wave duality (discrete snapshot)
 
+**Design Decision**: We considered adding a "fragment" type for truly ambiguous cases, but opted to keep the simpler default-to-point approach. This maintains theoretical consistency and avoids adding complexity for consumers who would need to handle an additional type with unclear semantics.
+
 ---
 
 ## Enhancement 5: Article Detection Rules
 
 ### Rule
 **If "a", "an", or "the" precedes a word → that word is part of a noun/Point clause**
+
+**Scope**: This is an **English-specific heuristic**. Article-based detection will not work for other languages (e.g., Chinese, Japanese, Russian). Version 2.0 is explicitly scoped for English text.
 
 ```
 Visual Detection Pattern:
@@ -364,8 +400,18 @@ Named Asset = {
 
 Mapping Process:
 1. Identify all Points in SB JSON
-2. For each Point, check if content matches asset label
-3. Add asset reference to matching Points
+2. For each Point, tokenize content and asset labels
+3. Match using token-based exact word matching (case/punctuation insensitive)
+4. Add all matching assets to Points (array of matches)
+
+Matching Strategy (Approved):
+- Token-based: Extract words from both Point content and asset labels
+- Normalize using Unicode NFKC + casefold() for case-insensitivity
+- Exact word match: "cactus" in "The cactus plant" ✓
+- Not substring: "cat" does NOT match "catch" ✓
+- Multiple matches: Return all matching assets as an array
+
+Future Optimization: Pre-index assets by normalized token sequences for O(n + m) performance
 ```
 
 ### Visual Example
@@ -386,21 +432,31 @@ Named Assets:
 
 Enhanced Output:
 {
+  "version": "2.0",
   "sentences": [
     {
       "type": "triple",
       "point1": {
         "content": "The cactus",
-        "asset": {"url": "https://wiki.org/cactus", "label": "cactus"}
+        "assets": [
+          {"url": "https://wiki.org/cactus", "label": "cactus"}
+        ]
       },
-      "line1": "grows in",
+      "line1": {
+        "content": "grows in"
+      },
       "point2": {
         "content": "desert",
-        "asset": {"url": "https://wiki.org/desert", "label": "desert"}
-      }
+        "assets": [
+          {"url": "https://wiki.org/desert", "label": "desert"}
+        ]
+      },
+      "original_text": "The cactus grows in desert."
     }
   ]
 }
+
+Note: Assets field only appears when there are matches (optional presence)
 ```
 
 ### Method Signature
@@ -448,8 +504,18 @@ Named Function = {
 
 Mapping Process:
 1. Identify all Lines in SB JSON
-2. For each Line, check if content semantically matches function description
-3. Add function reference to matching Lines
+2. For each Line, tokenize content and function descriptions
+3. Match using token-based exact word matching (case/punctuation insensitive)
+4. Add all matching functions to Lines (array of matches)
+
+Matching Strategy (Same as Assets):
+- Token-based: Extract words from both Line content and function descriptions
+- Normalize using Unicode NFKC + casefold() for case-insensitivity
+- Exact word match: "calculates" matches "calculates distance" ✓
+- Not substring: "calc" does NOT match "calculates" ✓
+- Multiple matches: Return all matching functions as an array
+
+Future Optimization: Pre-index functions by normalized token sequences
 ```
 
 ### Visual Example
@@ -476,21 +542,31 @@ Named Functions:
 
 Enhanced Output:
 {
+  "version": "2.0",
   "sentences": [
     {
       "type": "triple",
-      "point1": "The system",
+      "point1": {
+        "content": "The system"
+      },
       "line1": {
         "content": "calculates",
-        "function": {
-          "name": "calculate_distance",
-          "description": "calculates distance"
-        }
+        "functions": [
+          {
+            "name": "calculate_distance",
+            "description": "calculates distance"
+          }
+        ]
       },
-      "point2": "distance"
+      "point2": {
+        "content": "distance"
+      },
+      "original_text": "The system calculates distance."
     }
   ]
 }
+
+Note: Functions field only appears when there are matches (optional presence)
 ```
 
 ### Method Signature
@@ -581,31 +657,45 @@ def map_functions_to_lines(
 
 ## Implementation Checklist
 
-### Phase 1: Core Enhancements
-- [ ] Add `original_text` field to semantic structures
-- [ ] Implement `validate_text_for_encoding()` method
-- [ ] Update JSON schema to support flexible patterns (type field)
-- [ ] Modify parsing logic to detect and create non-triple patterns
-- [ ] Implement "ambiguous → Point" fallback logic
-- [ ] Enhance article detection in Point boundary identification
+### Phase 0: Refactoring & Scaffolding (0.5 week)
+- [ ] Split semantic.py into modular structure (core/, enrichment/)
+- [ ] Create new data structure classes with polymorphic union approach
+- [ ] Define JSON Schema v2.0 skeleton with oneOf patterns
+- [ ] Set up test harness patterns for new features
+- [ ] Maintain semantic.py as public API facade
 
-### Phase 2: Pattern Detection
+### Phase 1: Core Enhancements (1 week)
+- [ ] Add `original_text` field to all sentence structures
+- [ ] Implement always-object structure for Points/Lines
+- [ ] Implement `validate_text_for_encoding()` method (moderate level)
+- [ ] Update JSON schema to support `version` field
+- [ ] Enhance article detection with English-only scope
+- [ ] Add backward compatibility mode parameter
+
+### Phase 2: Pattern Detection (1.5 weeks)
+- [ ] Implement rule-based decision tree for pattern classification
 - [ ] Add logic to detect Line-first sentences (questions)
-- [ ] Create pattern classification system (point, line, point-line, line-point, triple)
-- [ ] Update tests to cover all new pattern types
+- [ ] Create pattern classification for all 6 types
+- [ ] Implement "ambiguous → Point" fallback logic
+- [ ] Update tests to cover all pattern types
+- [ ] Add determinism tests (same input = same output)
 
-### Phase 3: External Mapping
+### Phase 3: External Mapping (1 week)
+- [ ] Implement token-based matching with Unicode normalization (NFKC + casefold)
 - [ ] Implement `map_assets_to_points()` method
 - [ ] Implement `map_functions_to_lines()` method
-- [ ] Add optional asset/function fields to output schema
-- [ ] Create matching logic (exact match, fuzzy match, semantic similarity)
+- [ ] Add optional assets/functions fields (only when matches exist)
+- [ ] Return all matches as arrays
+- [ ] Document pre-indexing as future optimization
 
-### Phase 4: Testing & Documentation
-- [ ] Write comprehensive tests for each pattern type
+### Phase 4: Testing & Documentation (1 week)
+- [ ] Write 12-20 curated test cases per pattern type
+- [ ] Create 100-200 sentence edge-case corpus
 - [ ] Test validation edge cases
-- [ ] Test asset and function mapping
+- [ ] Test asset and function mapping with edge cases
+- [ ] JSON Schema validation tests
 - [ ] Update API documentation
-- [ ] Create migration guide for existing code
+- [ ] Document migration considerations (v1 → v2 limitations)
 
 ---
 
@@ -658,6 +748,61 @@ Use **Option B** with automatic detection:
 ✅ **Fidelity**: Original text preservation maintains authorial intent
 ✅ **Usability**: Clear patterns for different semantic situations
 ✅ **Extensibility**: Asset/function mapping enables advanced applications
+
+---
+
+## Codex Review & Approved Refinements
+
+**Review Date**: 2025-10-26
+
+### Key Improvements from Codex Review:
+
+1. **Always-Object Structure** ✅ ADOPTED
+   - Points and Lines are always objects with `"content"` field
+   - Prevents mixed string/object typing issues for consumers
+   - Assets/functions fields remain optional (only when matches exist)
+
+2. **Token-Based Matching** ✅ ADOPTED
+   - Use word tokenization, not substring matching
+   - Unicode normalization (NFKC + casefold) for robustness
+   - Prevents "cat" from matching "catch"
+
+3. **JSON Schema Correction** ✅ ADOPTED
+   - Use `oneOf` with `type` as discriminator
+   - JSON Schema 2020-12 does not standardize "discriminator" (OpenAPI concept)
+
+4. **Validation Simplification** ✅ ADOPTED
+   - Remove redundant "JSON serializable" check for Python strings
+   - Focus on length, segmentation, and pattern extractability
+
+5. **Phase 0 Addition** ✅ ADOPTED
+   - Add 0.5 week refactoring phase before feature implementation
+   - Allocate more time to pattern detection (1.5 weeks)
+
+6. **English-Only Scope** ✅ ADOPTED
+   - Article detection is English-specific heuristic
+   - Clearly document language scope limitations
+
+### Rejected Suggestions:
+
+1. **Fragment/Unknown Type** ❌ REJECTED
+   - Keeps system simpler, default-to-point aligns with theory
+   - Avoids extra complexity for consumers
+
+2. **Confidence Scores** ❌ REJECTED
+   - No clear way to calculate without ML dependencies
+   - Would complicate output without strong use case
+
+3. **Hypothesis Testing** ❌ REJECTED
+   - Violates zero-dependency constraint
+   - Can write excellent tests with stdlib only
+
+4. **Structured ValidationResult** ❌ REJECTED
+   - YAGNI - simple tuple is sufficient for v2.0
+   - Can add later if needed
+
+5. **Strict/Lenient Modes** ❌ REJECTED
+   - Unnecessary complexity without clear use case
 
 ---
 

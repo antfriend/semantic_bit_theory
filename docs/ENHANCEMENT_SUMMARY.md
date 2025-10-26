@@ -134,7 +134,7 @@ Auto-detection: Version set based on output structure
 }
 ```
 
-### Enhanced (v2.0 - Flexible)
+### Enhanced (v2.0 - Flexible, Always-Object Structure)
 ```json
 {
   "version": "2.0",
@@ -142,40 +142,55 @@ Auto-detection: Version set based on output structure
     // Pattern A: Point only
     {
       "type": "point",
-      "content": "A cactus",
+      "content": {
+        "content": "A cactus"
+      },
       "original_text": "A cactus."
     },
 
-    // Pattern B: Line-Point
+    // Pattern B: Line-Point (with asset mapping)
     {
       "type": "line-point",
-      "line": "What is",
+      "line": {
+        "content": "What is"
+      },
       "point": {
         "content": "a cactus",
-        "asset": {
-          "url": "https://wiki.org/cactus",
-          "label": "cactus"
-        }
+        "assets": [
+          {
+            "url": "https://wiki.org/cactus",
+            "label": "cactus"
+          }
+        ]
       },
       "original_text": "What is a cactus?"
     },
 
-    // Pattern C: Classic triple (enhanced)
+    // Pattern C: Classic triple (with function mapping)
     {
       "type": "triple",
-      "point1": "The cat",
+      "point1": {
+        "content": "The cat"
+      },
       "line1": {
         "content": "is sitting on",
-        "function": {
-          "name": "locate_object",
-          "description": "determines spatial relationship"
-        }
+        "functions": [
+          {
+            "name": "locate_object",
+            "description": "determines spatial relationship"
+          }
+        ]
       },
-      "point2": "the mat",
+      "point2": {
+        "content": "the mat"
+      },
       "original_text": "The cat is sitting on the mat."
     }
   ]
 }
+
+Note: Points/Lines ALWAYS objects with "content" field.
+Assets/functions are arrays, only present when matches exist.
 ```
 
 ---
@@ -203,6 +218,36 @@ Before proceeding to implementation, please clarify:
 5. **Optional vs Required**: Should `asset` and `function` fields be:
    - Optional (only present if mapping exists)?
    - Always present (null if no mapping)?
+
+---
+
+## ✅ Approved Decisions (2025-10-26)
+
+All questions have been answered and Codex review completed:
+
+1. **Character Limit**: ✅ Approved `max_chars = 10,000` (configurable)
+
+2. **Asset/Function Matching**: ✅ Token-based exact word matching
+   - Case and punctuation insensitive
+   - Unicode normalization (NFKC + casefold)
+   - NOT substring matching
+
+3. **Type Field Naming**: ✅ Approved
+   - `"point" | "line" | "point-point" | "point-line" | "line-point" | "triple"`
+
+4. **Multiple Asset Matches**: ✅ All matches (arrays)
+
+5. **Field Presence**: ✅ Optional (only when mappings exist)
+
+6. **Data Structure**: ✅ Always-object for Points/Lines
+   - Consistent `"content"` field structure
+   - Prevents mixed-typing issues for consumers
+
+7. **Fragment Type**: ❌ Rejected - default ambiguous to "point"
+
+8. **Confidence Scores**: ❌ Rejected - unnecessary complexity
+
+**Codex Review Status**: Complete - key improvements adopted, over-engineering rejected
 
 ---
 
