@@ -17,3 +17,22 @@ Create a console app to test this.
 In a future version we want to make "Line" entities able to execute named functions or events.
 
 For now create an analysis and implementation document in the "docs" folder for our review.
+
+NEW NEW NEW NEW NEW
+STUFF TO DO!!!!
+
++ Preserve the original text and punctuation within the sentence segments. This will allow the return of the complete text within a consuming application.
+
++ Add a validation method to test content can be fully JSON encoded and be below the character limit. If this validation passes, then the SB processing should always return valid SB JSON. 
+
++ SB JSON is not required to always be triples in a Point, Line, Point pattern. A whole sentence can be a single concept Point, or a single Line. 
+
++ if a sentence type is ambiguous or cannot be determined, it is a Point.
+
++ if "a", "an", or "the" precedes a word then that is a noun or Point clause
+
++ a sentence can begin with a Line like "What is" in the sentence, "What is a cactus?"
+
++ add a method to map named assets to Points in the SB JSON. A named asset consists of a URL and a label. Add SB JSON mappings to all Points with content that matches the name.
+
++ add a method to map named functions to Lines in the SB JSON. A named function consists of a valid(no spaces) function name and a description. Add SB JSON mappings to all Lines with content that matches the name.
