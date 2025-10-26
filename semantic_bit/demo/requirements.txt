@@ -1,0 +1,17 @@
+# Demo-specific dependencies for Semantic Bit Theory v2.0 visual testing
+# Install with: pip install -r semantic_bit/demo/requirements.txt
+
+# Core package (from parent directory)
+# Install semantic_bit first: pip install -e .
+
+# Gradio for web interface
+gradio>=4.0.0
+
+# Graphviz for graph rendering (requires system graphviz installation)
+# macOS: brew install graphviz
+# Ubuntu: apt-get install graphviz
+# Windows: https://graphviz.org/download/
+graphviz>=0.20.0
+
+# Optional: Pillow for image processing
+Pillow>=10.0.0
