@@ -273,11 +273,12 @@ def format_all_patterns(sb_json: Dict[str, Any]) -> str:
 # Statistics
 # =============================================================================
 
-def generate_stats(sb_json: Dict[str, Any]) -> str:
+def generate_stats(sb_json: Dict[str, Any], timing: Dict[str, float] = None) -> str:
     """Generate statistics about detected patterns.
 
     Args:
         sb_json: Complete Semantic Bit JSON output
+        timing: Optional timing metrics (in milliseconds)
 
     Returns:
         HTML formatted statistics
@@ -365,6 +366,42 @@ def generate_stats(sb_json: Dict[str, Any]) -> str:
 
     html += '''
         </table>
+    '''
+
+    # Add timing metrics if provided
+    if timing:
+        html += '''
+        <h4 style="margin-top: 20px;">⏱️ Processing Time Metrics</h4>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #f5f5f5;">
+                <th style="padding: 8px; text-align: left;">Operation</th>
+                <th style="padding: 8px; text-align: right;">Time (ms)</th>
+            </tr>
+        '''
+
+        metrics = [
+            ('Encoding', timing.get('encoding', 0)),
+            ('Enrichment', timing.get('enrichment', 0)),
+            ('Visualization', timing.get('visualization', 0)),
+            ('Graph Rendering', timing.get('graph_rendering', 0)),
+            ('Total', timing.get('total', 0)),
+        ]
+
+        for i, (label, time_ms) in enumerate(metrics):
+            bg_color = '#fafafa' if i % 2 else 'white'
+            bold = 'font-weight: bold;' if label == 'Total' else ''
+            html += f'''
+            <tr style="background: {bg_color};">
+                <td style="padding: 8px; {bold}">{label}</td>
+                <td style="padding: 8px; text-align: right; {bold}">{time_ms:.2f}</td>
+            </tr>
+            '''
+
+        html += '''
+        </table>
+        '''
+
+    html += '''
     </div>
     '''
 

@@ -21,6 +21,7 @@ import gradio as gr
 import json
 import graphviz
 import tempfile
+import time
 from pathlib import Path
 
 from src.semantic_bit import (
@@ -79,12 +80,12 @@ def process_text(
     """Process input text and return all visualization outputs.
 
     Returns:
-        Tuple of (patterns_html, json_output, dot_code, graph_image, stats_html, validation_msg)
+        Tuple of (patterns_html, json_output, dot_code, graph_image, graph_download, stats_html, validation_msg)
     """
     # Validate input
     if not text.strip():
         empty_msg = "⚠️ Please enter some text to process."
-        return empty_msg, {}, "", None, "", empty_msg
+        return empty_msg, {}, "", None, None, "", empty_msg
 
     # Pre-encoding validation
     level_map = {
@@ -100,15 +101,21 @@ def process_text(
 
     if not is_valid:
         error_msg = f"❌ Validation failed: {error}"
-        return error_msg, {}, "", None, "", error_msg
+        return error_msg, {}, "", None, None, "", error_msg
 
     validation_msg = f"✅ Validation passed ({validation_level} level)"
 
     try:
+        start_time = time.time()
+        timing = {}
+
         # Encode text to Semantic Bit JSON
+        encode_start = time.time()
         result = encode_text_to_sb(text)
+        timing['encoding'] = (time.time() - encode_start) * 1000  # ms
 
         # Apply enrichments if requested
+        enrichment_start = time.time()
         if apply_enrichments:
             # Parse assets
             if assets_json.strip():
@@ -125,19 +132,28 @@ def process_text(
                     result = map_functions_to_lines(result, functions)
                 except json.JSONDecodeError as e:
                     validation_msg += f"\n⚠️ Functions JSON error: {str(e)}"
+        timing['enrichment'] = (time.time() - enrichment_start) * 1000  # ms
 
         # Generate visualizations
+        viz_start = time.time()
         patterns_html = format_all_patterns(result)
         json_output = result  # Gradio will auto-format
         dot_code = decode_sb_to_dot(result)
-        graph_image = render_graph_to_image(dot_code)
-        stats_html = generate_stats(result)
 
-        return patterns_html, json_output, dot_code, graph_image, stats_html, validation_msg
+        graph_start = time.time()
+        graph_image = render_graph_to_image(dot_code)
+        timing['graph_rendering'] = (time.time() - graph_start) * 1000  # ms
+
+        timing['visualization'] = (time.time() - viz_start) * 1000  # ms
+        timing['total'] = (time.time() - start_time) * 1000  # ms
+
+        stats_html = generate_stats(result, timing)
+
+        return patterns_html, json_output, dot_code, graph_image, graph_image, stats_html, validation_msg
 
     except Exception as e:
         error_msg = f"❌ Error processing text: {str(e)}"
-        return error_msg, {}, "", None, "", error_msg
+        return error_msg, {}, "", None, None, "", error_msg
 
 
 def render_graph_to_image(dot_code: str) -> str:
@@ -321,7 +337,12 @@ def create_interface():
                             elem_classes=["output-image"]
                         )
 
-                        gr.Markdown("💡 **Tip**: Right-click to save the graph image")
+                        graph_download = gr.File(
+                            label="📥 Download Graph (SVG)",
+                            visible=True
+                        )
+
+                        gr.Markdown("💡 **Tip**: You can also right-click the image to save")
 
                     # Tab 2: Patterns (Color-coded)
                     with gr.Tab("🎨 Patterns"):
@@ -412,13 +433,14 @@ def create_interface():
                 json_output,
                 dot_output,
                 graph_output,
+                graph_download,
                 stats_output,
                 validation_status
             ]
         )
 
         clear_btn.click(
-            fn=lambda: ("", EXAMPLE_ASSETS, EXAMPLE_FUNCTIONS, False, "", {}, "", None, "", ""),
+            fn=lambda: ("", EXAMPLE_ASSETS, EXAMPLE_FUNCTIONS, False, "", {}, "", None, None, "", ""),
             inputs=[],
             outputs=[
                 text_input,
@@ -429,6 +451,7 @@ def create_interface():
                 json_output,
                 dot_output,
                 graph_output,
+                graph_download,
                 stats_output,
                 validation_status
             ]
