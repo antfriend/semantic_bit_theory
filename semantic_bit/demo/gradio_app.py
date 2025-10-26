@@ -270,19 +270,17 @@ def create_interface():
 
                 with gr.Accordion("🔗 Enrichments (Optional)", open=False):
                     assets_input = gr.Code(
-                        label="Assets JSON",
+                        label="Assets JSON - Format: [{\"url\": \"...\", \"label\": \"...\"}]",
                         language="json",
                         lines=8,
-                        value=EXAMPLE_ASSETS,
-                        info='Format: [{"url": "...", "label": "..."}]'
+                        value=EXAMPLE_ASSETS
                     )
 
                     functions_input = gr.Code(
-                        label="Functions JSON",
+                        label="Functions JSON - Format: [{\"name\": \"...\", \"description\": \"...\"}]",
                         language="json",
                         lines=8,
-                        value=EXAMPLE_FUNCTIONS,
-                        info='Format: [{"name": "...", "description": "..."}]'
+                        value=EXAMPLE_FUNCTIONS
                     )
 
                 with gr.Row():
@@ -354,7 +352,6 @@ def create_interface():
 
                         dot_output = gr.Code(
                             label="DOT Graph Code",
-                            language="dot",
                             lines=15
                         )
 
