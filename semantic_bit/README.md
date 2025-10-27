@@ -25,12 +25,21 @@ This package is part of the larger semantic_bit_theory project.
 ### Quick Development Setup
 
 ```bash
-# From this directory (semantic_bit/)
+# From the project root (semantic_bit_theory/)
 python -m venv .venv
-source .venv/bin/activate
-pip install -e .[dev]
-pytest
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install all development dependencies
+pip install -r requirements.txt
+
+# Install this package in editable mode
+pip install -e ./semantic_bit
+
+# Run tests
+pytest semantic_bit/tests/
 ```
+
+**Note:** The core `semantic-bit` package has **zero runtime dependencies**. Development dependencies (matplotlib, numpy, pytest) are only needed for working on the repository, not for using the published package.
 
 ### Testing
 
@@ -49,12 +58,16 @@ pytest tests/test_semantic.py::TestEncoding -v
 ### Building and Publishing
 
 ```bash
-# Build the package
+# Install build tools (or use pip install -r requirements.txt from project root)
 pip install build twine
-python -m build
+
+# Build the package (from the semantic_bit/ directory)
+python3.10 -m build
 
 # Upload to PyPI
-python -m twine upload dist/*
+python3.10 -m twine upload dist/*
 ```
+
+**Note:** A `.pypirc` file in your home directory is recommended for PyPI authentication. See the [Twine documentation](https://twine.readthedocs.io/) for details.
 
 For complete project information, installation instructions, and usage examples, see the [main project README](../README.md).

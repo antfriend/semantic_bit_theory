@@ -26,19 +26,37 @@ echo "The scientist studies quantum mechanics." | semantic-bit encode | semantic
 
 ## Installation
 
+### For End Users
+
 ```bash
 pip install semantic-bit
 ```
 
-### Development Setup
+The semantic-bit package has **zero runtime dependencies** - it uses only Python's standard library!
+
+### For Development
+
+To work on the semantic_bit_theory project (including diagram generation and testing):
 
 ```bash
 git clone https://github.com/your-repo/semantic_bit_theory.git
-cd semantic_bit_theory/semantic_bit
+cd semantic_bit_theory
+
+# Create and activate virtual environment
 python -m venv .venv
-source .venv/bin/activate
-pip install -e .[dev]
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install development dependencies
+pip install -r requirements.txt
+
+# Install the package in editable mode
+pip install -e ./semantic_bit
 ```
+
+**Development dependencies include:**
+- `matplotlib` & `numpy` - For generating visualization diagrams
+- `pytest` - For running the test suite
+- `build` & `twine` - For packaging and publishing
 
 ## Quick Start
 
@@ -89,18 +107,22 @@ Detailed technical analysis of the implementation including architecture, algori
 
 ```
 semantic_bit_theory/
-├── README.md                 # This file - main project documentation
-├── semantic_bit/             # Python package directory
-│   ├── src/semantic_bit/     # Source code
-│   ├── tests/                # Test suite (62+ tests)
-│   └── README.md             # Package-specific documentation
-├── docs/                     # Documentation
-│   ├── examples.md           # Usage examples and patterns
-│   ├── testing.md            # Testing guide
-│   ├── theory.md             # Conceptual framework
-│   └── semantic_bit_analysis.md # Technical specification
-├── examples/                 # Sample files and demonstrations
-└── images/                   # Conceptual diagrams and visualizations
+├── README.md                          # This file - main project documentation
+├── requirements.txt                   # Development dependencies (matplotlib, numpy, pytest, build, twine)
+├── generate_enhancement_diagrams.py   # Visualization diagram generator
+├── semantic_bit/                      # Python package directory
+│   ├── requirements.txt               # Package-specific dependencies
+│   ├── pyproject.toml                 # Package configuration and metadata
+│   ├── src/semantic_bit/              # Source code
+│   ├── tests/                         # Test suite (62+ tests)
+│   └── README.md                      # Package-specific documentation
+├── docs/                              # Documentation
+│   ├── examples.md                    # Usage examples and patterns
+│   ├── testing.md                     # Testing guide
+│   ├── theory.md                      # Conceptual framework
+│   └── semantic_bit_analysis.md       # Technical specification
+├── examples/                          # Sample files and demonstrations
+└── images/                            # Conceptual diagrams and visualizations
 ```
 
 ## Contributing
@@ -108,12 +130,21 @@ semantic_bit_theory/
 We welcome contributions! Please see our testing guide for information about running tests and our examples documentation for usage patterns.
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes and add tests
-4. Run the test suite (`pytest`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+2. Clone and set up your development environment:
+   ```bash
+   git clone https://github.com/your-username/semantic_bit_theory.git
+   cd semantic_bit_theory
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   pip install -e ./semantic_bit
+   ```
+3. Create a feature branch (`git checkout -b feature/amazing-feature`)
+4. Make your changes and add tests
+5. Run the test suite (`pytest semantic_bit/tests/`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
 ## License
 

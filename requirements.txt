@@ -1,0 +1,16 @@
+# Development dependencies for semantic_bit_theory repository
+# This includes all dependencies needed to work on the project
+
+# For generating diagrams (generate_enhancement_diagrams.py)
+matplotlib>=3.5.0
+numpy>=1.21.0
+
+# For testing
+pytest>=7.0.0
+
+# For building and publishing the package
+build>=0.10.0
+twine>=4.0.0
+
+# The actual semantic-bit package (for development, install in editable mode)
+# Install with: pip install -e ./semantic_bit

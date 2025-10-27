@@ -1,0 +1,9 @@
+# Development and visualization dependencies for semantic-bit
+# Note: The core package has no runtime dependencies (uses only Python stdlib)
+
+# For generating diagrams (generate_enhancement_diagrams.py)
+matplotlib>=3.5.0
+numpy>=1.21.0
+
+# For testing
+pytest>=7.0.0
