@@ -59,7 +59,7 @@ def encode_sb_to_animated_svg(
     # Generate sentence groups
     sentence_groups = []
     for idx, sentence in enumerate(sentences):
-        group = _render_sentence_group(sentence, idx, num_sentences)
+        group = _render_sentence_group(sentence, idx, num_sentences, width)
         sentence_groups.append(group)
 
     # Combine into complete SVG
@@ -211,7 +211,8 @@ def _pick_animation(sentence: Dict[str, Any]) -> str:
 def _render_sentence_group(
     sentence: Dict[str, Any],
     idx: int,
-    total_sentences: int
+    total_sentences: int,
+    viewport_width: int = 800
 ) -> str:
     """Render a single sentence as an SVG group.
 
@@ -219,6 +220,7 @@ def _render_sentence_group(
         sentence: Sentence dictionary from SB JSON
         idx: Sentence index (0-based)
         total_sentences: Total number of sentences
+        viewport_width: Viewport width in pixels for scaling long sentences
 
     Returns:
         SVG <g> element containing styled tokens
@@ -227,10 +229,19 @@ def _render_sentence_group(
     animation = _pick_animation(sentence)
 
     # Calculate layout
-    token_gap = 20  # Gap between tokens
-    arrow_width = 30  # Space for arrow
+    arrow_width = 40  # Space for arrow between tokens
+    arrow_gap = 10    # Extra spacing around arrows
 
-    # Build token elements
+    # First pass: calculate all token widths
+    token_widths = []
+    for text, token_type in tokens:
+        # Bold text is ~30% wider than normal, use 13px per char
+        # Add generous padding (40px) to prevent overlap
+        text_width = len(text) * 13
+        bg_width = text_width + 40
+        token_widths.append(bg_width)
+
+    # Build token elements with correct spacing
     token_elements = []
     current_x = 0
 
@@ -238,9 +249,7 @@ def _render_sentence_group(
         # Escape text for XML
         escaped_text = html.escape(text)
 
-        # Estimate text width (rough approximation: 8px per char)
-        text_width = len(text) * 8
-        bg_width = text_width + 16  # Add padding
+        bg_width = token_widths[token_idx]
         bg_height = 32
 
         # Render token with background and text
@@ -250,18 +259,28 @@ def _render_sentence_group(
 </g>'''
         token_elements.append(token_svg)
 
-        current_x += bg_width/2
+        # Move to right edge of current token
+        current_x += bg_width / 2
 
         # Add arrow between tokens
         if token_idx < len(tokens) - 1:
+            # Add gap, arrow, gap
+            current_x += arrow_gap
             arrow_svg = f'''<text class="sb-arrow" x="{current_x + arrow_width/2}" y="5" text-anchor="middle">→</text>'''
             token_elements.append(arrow_svg)
-            current_x += arrow_width + bg_width/2
-        else:
-            current_x += bg_width/2
+            current_x += arrow_width + arrow_gap
+            # Add half of NEXT token's width
+            next_width = token_widths[token_idx + 1]
+            current_x += next_width / 2
 
-    # Center the entire group
-    offset_x = -current_x / 2
+    # Check if sentence is too wide and needs scaling
+    # Use 85% of viewport as safe zone to prevent edge clipping
+    max_width = viewport_width * 0.85
+    scale = 1.0
+
+    if current_x > max_width:
+        # Scale down to fit within viewport
+        scale = max_width / current_x
 
     # Generate group with animation
     is_last = (idx == total_sentences - 1)
@@ -271,7 +290,24 @@ def _render_sentence_group(
         # Last sentence - no loop
         animation_class += " last-sentence"
 
-    group = f'''<g class="{animation_class}" transform="translate({offset_x}, 0)">
+    # Center the content
+    # For unscaled: translate by -current_x/2
+    # For scaled: Use nested groups to avoid transform order issues
+    if scale < 1.0:
+        # Nested groups: inner centers unscaled content, scale wraps it, outer positions at viewport center
+        inner_offset = -current_x / 2
+        # After scaling, effective width is current_x * scale, so center at 0
+        group = f'''<g class="{animation_class}">
+  <g transform="scale({scale:.3f})">
+    <g transform="translate({inner_offset}, 0)">
+{_indent_lines("".join(token_elements), 6)}
+    </g>
+  </g>
+</g>'''
+    else:
+        # No scaling needed - just center normally
+        offset_x = -current_x / 2
+        group = f'''<g class="{animation_class}" transform="translate({offset_x}, 0)">
 {_indent_lines("".join(token_elements), 2)}
 </g>'''
 
