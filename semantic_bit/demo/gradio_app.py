@@ -31,6 +31,7 @@ from src.semantic_bit import (
     map_functions_to_lines,
     validate_text_for_encoding,
     ValidationLevel,
+    encode_sb_to_animated_svg,
 )
 
 from utils import format_all_patterns, generate_stats
@@ -80,12 +81,12 @@ def process_text(
     """Process input text and return all visualization outputs.
 
     Returns:
-        Tuple of (patterns_html, json_output, dot_code, graph_image, graph_download, stats_html, validation_msg)
+        Tuple of (patterns_html, json_output, dot_code, graph_image, graph_download, animation_html, stats_html, validation_msg)
     """
     # Validate input
     if not text.strip():
         empty_msg = "⚠️ Please enter some text to process."
-        return empty_msg, {}, "", None, None, "", empty_msg
+        return empty_msg, {}, "", None, None, "", "", empty_msg
 
     # Pre-encoding validation
     level_map = {
@@ -101,7 +102,7 @@ def process_text(
 
     if not is_valid:
         error_msg = f"❌ Validation failed: {error}"
-        return error_msg, {}, "", None, None, "", error_msg
+        return error_msg, {}, "", None, None, "", "", error_msg
 
     validation_msg = f"✅ Validation passed ({validation_level} level)"
 
@@ -144,16 +145,21 @@ def process_text(
         graph_image = render_graph_to_image(dot_code)
         timing['graph_rendering'] = (time.time() - graph_start) * 1000  # ms
 
+        # Generate animated SVG
+        animation_start = time.time()
+        animated_svg = encode_sb_to_animated_svg(result, width=1000, height=700, interval_ms=3000)
+        timing['animation_generation'] = (time.time() - animation_start) * 1000  # ms
+
         timing['visualization'] = (time.time() - viz_start) * 1000  # ms
         timing['total'] = (time.time() - start_time) * 1000  # ms
 
         stats_html = generate_stats(result, timing)
 
-        return patterns_html, json_output, dot_code, graph_image, graph_image, stats_html, validation_msg
+        return patterns_html, json_output, dot_code, graph_image, graph_image, animated_svg, stats_html, validation_msg
 
     except Exception as e:
         error_msg = f"❌ Error processing text: {str(e)}"
-        return error_msg, {}, "", None, None, "", error_msg
+        return error_msg, {}, "", None, None, "", "", error_msg
 
 
 def render_graph_to_image(dot_code: str) -> str:
@@ -344,7 +350,27 @@ def create_interface():
 
                         gr.Markdown("💡 **Tip**: You can also right-click the image to save")
 
-                    # Tab 2: Patterns (Color-coded)
+                    # Tab 2: Animated SVG Slideshow
+                    with gr.Tab("🎬 Animation"):
+                        gr.Markdown("""
+                        **Animated SVG Slideshow**
+
+                        - ✨ One sentence at a time with smooth transitions
+                        - ⏱️ 3 seconds per sentence
+                        - 🎨 Styled Point (white) and Line (green) terms
+                        - 🔚 Ends with "The End." and stops
+
+                        **To view**: Download the SVG and open it in your browser (Chrome, Firefox, Safari)
+                        """)
+
+                        animation_output = gr.HTML(
+                            label="Animated SVG Preview",
+                            value="<p style='text-align: center; color: #666;'>Process text to generate animation</p>"
+                        )
+
+                        gr.Markdown("💡 **Tip**: Right-click → 'Save As...' to download, then open in browser to see animation")
+
+                    # Tab 3: Patterns (Color-coded)
                     with gr.Tab("🎨 Patterns"):
                         gr.Markdown("**Color-coded semantic patterns**")
 
@@ -434,13 +460,14 @@ def create_interface():
                 dot_output,
                 graph_output,
                 graph_download,
+                animation_output,
                 stats_output,
                 validation_status
             ]
         )
 
         clear_btn.click(
-            fn=lambda: ("", EXAMPLE_ASSETS, EXAMPLE_FUNCTIONS, False, "", {}, "", None, None, "", ""),
+            fn=lambda: ("", EXAMPLE_ASSETS, EXAMPLE_FUNCTIONS, False, "", {}, "", None, None, "", "", ""),
             inputs=[],
             outputs=[
                 text_input,
@@ -452,6 +479,7 @@ def create_interface():
                 dot_output,
                 graph_output,
                 graph_download,
+                animation_output,
                 stats_output,
                 validation_status
             ]

@@ -39,7 +39,6 @@ The semantic-bit package has **zero runtime dependencies** - it uses only Python
 To work on the semantic_bit_theory project (including diagram generation and testing):
 
 ```bash
-git clone https://github.com/your-repo/semantic_bit_theory.git
 cd semantic_bit_theory
 
 # Create and activate virtual environment
@@ -88,6 +87,35 @@ semantic-bit decode --file output.json --out graph.dot
 # Pipeline operations
 semantic-bit encode --file input.txt | semantic-bit decode --name "MyGraph"
 ```
+
+### Web Demo (Gradio UI)
+
+semantic-bit ships with an optional Gradio interface for manually testing pattern detection and graph output.
+
+1. Install the demo dependencies and ensure Graphviz is available on your system:
+
+```bash
+pip install -r semantic_bit/demo/requirements.txt
+# macOS
+brew install graphviz
+# Ubuntu / Debian
+sudo apt-get install graphviz
+```
+
+2. Launch the server from the project root:
+
+```bash
+PYTHONPATH=semantic_bit/src python semantic_bit/demo/gradio_app.py
+```
+
+   Or, change into the `semantic_bit/` directory and run:
+
+```bash
+cd semantic_bit
+python -m demo.gradio_app
+```
+
+The interface starts at http://localhost:7860 by default.
 
 ## Documentation
 
