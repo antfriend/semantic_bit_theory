@@ -21,7 +21,7 @@ python -m demo.gradio_app
 **Or use the convenience script:**
 ```bash
 ./start_gradio.sh      # macOS/Linux
-start_gradio.bat       # Windows
+./start_gradio.bat       # Windows
 ```
 
 ---
@@ -91,7 +91,7 @@ An interactive web interface for testing pattern detection, visualization, and S
 python3.13 -m venv venv
 
 # 2. Activate the virtual environment
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv/Scripts/activate
 
 # 3. Install Gradio and dependencies
 pip install gradio graphviz
@@ -110,7 +110,7 @@ pip install -e ./semantic_bit
 # Activate the virtual environment first:
 source venv/bin/activate          # macOS/Linux
 # OR
-venv\Scripts\activate             # Windows
+venv/Scripts/activate             # Windows
 
 # Then run the app (works from any directory):
 cd semantic_bit
@@ -129,7 +129,7 @@ deactivate
 ./venv/bin/python semantic_bit/demo/gradio_app.py
 
 # Windows:
-venv\Scripts\python.exe semantic_bit\demo\gradio_app.py
+venv/Scripts/python.exe semantic_bit/demo/gradio_app.py
 ```
 
 **Option 3: Convenience Script** ⭐

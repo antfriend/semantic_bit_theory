@@ -44,7 +44,7 @@ from utils import format_all_patterns, generate_stats
 EXAMPLE_TEXTS = [
     "The cat is sitting on the mat.",
     "What is a cactus?",
-    "The dog barks. A cactus grows. The scientist studies quantum mechanics.",
+    "The dog is barking. A cactus is growing. The quantum scientist calculates the distance to be going to an ancient quazar.",
     "The system calculates distance to the target.",
     "My friend, a talented artist, creates beautiful paintings.",
 ]
