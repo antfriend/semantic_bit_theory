@@ -73,6 +73,11 @@ from .enrichment import (
     map_functions_to_lines,
 )
 
+# SVG Animation
+from .svg_animation import (
+    encode_sb_to_animated_svg,
+)
+
 __all__ = [
     # Legacy API
     "analyze_text",
@@ -86,6 +91,9 @@ __all__ = [
     # Enrichment API
     "map_assets_to_points",
     "map_functions_to_lines",
+
+    # SVG Animation API
+    "encode_sb_to_animated_svg",
 
     # Data structures
     "Token",

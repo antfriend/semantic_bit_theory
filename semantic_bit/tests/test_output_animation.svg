@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700">
+  <defs>
+    <style>
+/* Base Styles */
+.sb-token { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 20px; }
+.sb-point { font-weight: bold; fill: #000; }
+.sb-point-bg { fill: #fff; stroke: #333; stroke-width: 2; }
+.sb-line { font-weight: bold; fill: #0a0; }
+.sb-line-bg { fill: #c7f7d4; stroke: #0a0; stroke-width: 2; }
+.sb-arrow { font-size: 24px; fill: #666; }
+
+/* Sentence visibility control */
+[class*='sentence-'] { opacity: 0; visibility: hidden; animation-duration: 3000ms; animation-fill-mode: both; animation-iteration-count: infinite; }
+.last-sentence { animation-iteration-count: 1; animation-fill-mode: forwards; }
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  0%, 10% { opacity: 0; visibility: visible; }
+  20%, 80% { opacity: 1; visibility: visible; }
+  90%, 100% { opacity: 0; visibility: hidden; }
+}
+@keyframes slideUp {
+  0%, 10% { opacity: 0; transform: translateY(50px); visibility: visible; }
+  20%, 80% { opacity: 1; transform: translateY(0); visibility: visible; }
+  90%, 100% { opacity: 0; transform: translateY(-50px); visibility: hidden; }
+}
+@keyframes zoomIn {
+  0%, 10% { opacity: 0; transform: scale(0.5); visibility: visible; }
+  20%, 80% { opacity: 1; transform: scale(1); visibility: visible; }
+  90%, 100% { opacity: 0; transform: scale(1.5); visibility: hidden; }
+}
+@keyframes spinIn {
+  0%, 10% { opacity: 0; transform: rotate(-180deg) scale(0.5); visibility: visible; }
+  20%, 80% { opacity: 1; transform: rotate(0deg) scale(1); visibility: visible; }
+  90%, 100% { opacity: 0; transform: rotate(180deg) scale(0.5); visibility: hidden; }
+}
+@keyframes pulse {
+  0%, 10% { opacity: 0; transform: scale(0.8); visibility: visible; }
+  20%, 40% { opacity: 1; transform: scale(1.1); visibility: visible; }
+  50%, 80% { opacity: 1; transform: scale(1); visibility: visible; }
+  90%, 100% { opacity: 0; transform: scale(0.8); visibility: hidden; }
+}
+
+/* Animation assignments */
+.sentence-0 { animation-delay: 0ms; }
+.sentence-1 { animation-delay: 3000ms; }
+.sentence-2 { animation-delay: 6000ms; }
+.sentence-3 { animation-delay: 9000ms; }
+.sentence-4 { animation-delay: 12000ms; }
+.anim-fade_in { animation-name: fadeIn; }
+.anim-slide_up { animation-name: slideUp; }
+.anim-zoom_in { animation-name: zoomIn; }
+.anim-spin_in { animation-name: spinIn; }
+.anim-pulse { animation-name: pulse; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <g id="slideshow" transform="translate(500.0, 350.0)">
+    <g class="sentence-0 anim-fade_in" transform="translate(-100.0, 0)">
+      <g class="sb-token sb-point" transform="translate(0, 0)">
+        <rect class="sb-point-bg" x="-100.0" y="-16" width="200" height="32" rx="4"/>
+        <text class="sb-point" text-anchor="middle" y="5">The cat sits on the mat</text>
+      </g>
+    </g><g class="sentence-1 anim-slide_up" transform="translate(-91.0, 0)">
+      <g class="sb-token sb-line" transform="translate(0, 0)">
+        <rect class="sb-line-bg" x="-36.0" y="-16" width="72" height="32" rx="4"/>
+        <text class="sb-line" text-anchor="middle" y="5">What is</text>
+      </g><text class="sb-arrow" x="51.0" y="5" text-anchor="middle">→</text><g class="sb-token sb-point" transform="translate(102.0, 0)">
+        <rect class="sb-point-bg" x="-40.0" y="-16" width="80" height="32" rx="4"/>
+        <text class="sb-point" text-anchor="middle" y="5">a cactus</text>
+      </g>
+    </g><g class="sentence-2 anim-fade_in" transform="translate(-56.0, 0)">
+      <g class="sb-token sb-point" transform="translate(0, 0)">
+        <rect class="sb-point-bg" x="-56.0" y="-16" width="112" height="32" rx="4"/>
+        <text class="sb-point" text-anchor="middle" y="5">A bird flies</text>
+      </g>
+    </g><g class="sentence-3 anim-fade_in" transform="translate(-88.0, 0)">
+      <g class="sb-token sb-point" transform="translate(0, 0)">
+        <rect class="sb-point-bg" x="-88.0" y="-16" width="176" height="32" rx="4"/>
+        <text class="sb-point" text-anchor="middle" y="5">The dog barks loudly</text>
+      </g>
+    </g><g class="sentence-4 anim-fade_in last-sentence" transform="translate(-40.0, 0)">
+      <g class="sb-token sb-point" transform="translate(0, 0)">
+        <rect class="sb-point-bg" x="-40.0" y="-16" width="80" height="32" rx="4"/>
+        <text class="sb-point" text-anchor="middle" y="5">The End.</text>
+      </g>
+    </g>
+  </g>
+</svg>
