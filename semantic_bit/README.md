@@ -2,6 +2,30 @@
 
 This directory contains the Python package implementation of semantic-bit.
 
+## 🚀 Quick Start - Gradio App
+
+```bash
+# From the project root (semantic_bit_theory/)
+
+# 1. Activate virtual environment
+source venv/bin/activate          # macOS/Linux
+venv\Scripts\activate             # Windows
+
+# 2. Run the app
+cd semantic_bit
+python -m demo.gradio_app
+
+# Opens at: http://localhost:7860
+```
+
+**Or use the convenience script:**
+```bash
+./start_gradio.sh      # macOS/Linux
+start_gradio.bat       # Windows
+```
+
+---
+
 ## Package Structure
 
 ```
@@ -78,13 +102,43 @@ pip install -e ./semantic_bit
 
 #### Running the App
 
+**Option 1: With Activated Virtual Environment** (Recommended)
+
 ```bash
-# From the project root
+# From the project root (semantic_bit_theory/)
+
+# Activate the virtual environment first:
+source venv/bin/activate          # macOS/Linux
+# OR
+venv\Scripts\activate             # Windows
+
+# Then run the app (works from any directory):
+cd semantic_bit
+python -m demo.gradio_app
+
+# When done, deactivate:
+deactivate
+```
+
+**Option 2: Direct Python Path** (No activation needed)
+
+```bash
+# From the project root (semantic_bit_theory/)
+
+# macOS/Linux:
 ./venv/bin/python semantic_bit/demo/gradio_app.py
 
-# Or from the semantic_bit/ directory
-cd semantic_bit
-../venv/bin/python -m demo.gradio_app
+# Windows:
+venv\Scripts\python.exe semantic_bit\demo\gradio_app.py
+```
+
+**Option 3: Convenience Script** ⭐
+
+```bash
+# From the project root
+./start_gradio.sh      # macOS/Linux
+# OR
+start_gradio.bat       # Windows
 ```
 
 The app will open at: **http://localhost:7860**
@@ -110,6 +164,39 @@ The app will open at: **http://localhost:7860**
   sudo apt-get install graphviz  # Debian/Ubuntu
   sudo yum install graphviz      # Red Hat/CentOS
   ```
+
+#### Troubleshooting
+
+**"Which virtual environment should I use?"**
+
+The project should have **ONE** virtual environment in the project root:
+- ✅ Use: `/Users/.../semantic_bit_theory/venv/` (project root)
+- ❌ Don't use: `.venv`, `semantic_bit/venv`, or other locations
+
+If you have multiple venv directories, remove the extras:
+```bash
+# From project root
+rm -rf .venv semantic_bit/venv  # Remove any extras
+# Keep only: venv/
+```
+
+**"ModuleNotFoundError: No module named 'gradio'"**
+
+Your virtual environment isn't activated or dependencies aren't installed:
+```bash
+source venv/bin/activate          # Activate first
+pip install gradio graphviz       # Install dependencies
+pip install -e ./semantic_bit     # Install package
+```
+
+**"python: command not found" (Windows)**
+
+Use `python` instead of `python3`:
+```bash
+python -m venv venv               # Create venv
+venv\Scripts\activate             # Activate
+python -m demo.gradio_app         # Run app
+```
 
 ## Package Development
 
