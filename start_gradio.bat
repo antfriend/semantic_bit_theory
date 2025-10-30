@@ -24,13 +24,33 @@ if not exist "venv\Scripts\python.exe" (
     exit /b 1
 )
 
-REM Check if semantic_bit package is installed
+REM Check if required packages are installed
+set MISSING_DEPS=
+
+"%SCRIPT_DIR%venv\Scripts\python.exe" -c "import gradio" >nul 2>&1
+if errorlevel 1 set MISSING_DEPS=%MISSING_DEPS% gradio
+
+"%SCRIPT_DIR%venv\Scripts\python.exe" -c "import graphviz" >nul 2>&1
+if errorlevel 1 set MISSING_DEPS=%MISSING_DEPS% graphviz
+
 "%SCRIPT_DIR%venv\Scripts\python.exe" -c "import semantic_bit" >nul 2>&1
-if errorlevel 1 (
-    echo ⚠️  semantic_bit package not installed
+if errorlevel 1 set MISSING_DEPS=%MISSING_DEPS% semantic_bit
+
+if not "%MISSING_DEPS%"=="" (
+    echo ⚠️  Missing dependencies:%MISSING_DEPS%
     echo.
     echo Installing now...
-    "%SCRIPT_DIR%venv\Scripts\pip.exe" install -e ./semantic_bit
+
+    echo %MISSING_DEPS% | findstr /C:"gradio" >nul && (
+        "%SCRIPT_DIR%venv\Scripts\pip.exe" install gradio graphviz
+    )
+
+    echo %MISSING_DEPS% | findstr /C:"semantic_bit" >nul && (
+        "%SCRIPT_DIR%venv\Scripts\pip.exe" install -e ./semantic_bit
+    )
+
+    echo.
+    echo ✅ Dependencies installed
     echo.
 )
 

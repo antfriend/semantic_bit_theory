@@ -24,6 +24,32 @@ semantic-bit encode "The cat is sitting on the mat."
 echo "The scientist studies quantum mechanics." | semantic-bit encode | semantic-bit decode
 ```
 
+## 🚀 Quick Start - Gradio Web App
+
+**For visual testing and animated SVG generation:**
+
+```bash
+# From the project root (semantic_bit_theory/)
+
+# Option 1: Use convenience script (easiest)
+./start_gradio.sh              # macOS/Linux
+start_gradio.bat               # Windows
+
+# Option 2: Manual activation (recommended for development)
+source venv/bin/activate       # macOS/Linux
+venv\Scripts\activate          # Windows
+cd semantic_bit
+python -m demo.gradio_app
+
+# Opens at: http://localhost:7860
+```
+
+**Features**: Interactive pattern detection, graph visualization, and **animated SVG slideshow generation**.
+
+See [Gradio App Guide](semantic_bit/README.md#quick-start---gradio-app) for detailed setup instructions.
+
+---
+
 ## Installation
 
 ### For End Users
@@ -90,32 +116,17 @@ semantic-bit encode --file input.txt | semantic-bit decode --name "MyGraph"
 
 ### Web Demo (Gradio UI)
 
-semantic-bit ships with an optional Gradio interface for manually testing pattern detection and graph output.
+semantic-bit includes an interactive Gradio web interface for visual testing, pattern detection, graph visualization, and **animated SVG generation**.
 
-1. Install the demo dependencies and ensure Graphviz is available on your system:
+**Quick Start**: See the [Gradio Quick Start](#-quick-start---gradio-web-app) section above for the easiest way to launch the app.
 
-```bash
-pip install -r semantic_bit/demo/requirements.txt
-# macOS
-brew install graphviz
-# Ubuntu / Debian
-sudo apt-get install graphviz
-```
+**Detailed Setup**: For complete setup instructions including:
+- Virtual environment setup
+- Dependency installation (gradio, graphviz)
+- Multiple startup options
+- Troubleshooting
 
-2. Launch the server from the project root:
-
-```bash
-PYTHONPATH=semantic_bit/src python semantic_bit/demo/gradio_app.py
-```
-
-   Or, change into the `semantic_bit/` directory and run:
-
-```bash
-cd semantic_bit
-python -m demo.gradio_app
-```
-
-The interface starts at http://localhost:7860 by default.
+See the [Gradio App Guide](semantic_bit/README.md#gradio-visual-testing-app) in the semantic_bit package README.
 
 ## Documentation
 

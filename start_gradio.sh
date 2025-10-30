@@ -16,19 +16,43 @@ if [ ! -d "venv" ]; then
     echo "❌ Virtual environment not found at: venv/"
     echo ""
     echo "Please run setup first:"
-    echo "  python3.13 -m venv venv"
+    echo "  python3 -m venv venv           # Use python3 or python depending on your system"
     echo "  source venv/bin/activate"
     echo "  pip install gradio graphviz"
     echo "  pip install -e ./semantic_bit"
     exit 1
 fi
 
-# Check if semantic_bit package is installed
+# Check if required packages are installed
+MISSING_DEPS=""
+
+if ! "$SCRIPT_DIR/venv/bin/python" -c "import gradio" 2>/dev/null; then
+    MISSING_DEPS="$MISSING_DEPS gradio"
+fi
+
+if ! "$SCRIPT_DIR/venv/bin/python" -c "import graphviz" 2>/dev/null; then
+    MISSING_DEPS="$MISSING_DEPS graphviz"
+fi
+
 if ! "$SCRIPT_DIR/venv/bin/python" -c "import semantic_bit" 2>/dev/null; then
-    echo "⚠️  semantic_bit package not installed"
+    MISSING_DEPS="$MISSING_DEPS semantic_bit"
+fi
+
+if [ -n "$MISSING_DEPS" ]; then
+    echo "⚠️  Missing dependencies:$MISSING_DEPS"
     echo ""
     echo "Installing now..."
-    "$SCRIPT_DIR/venv/bin/pip" install -e ./semantic_bit
+
+    if [[ "$MISSING_DEPS" == *"gradio"* ]] || [[ "$MISSING_DEPS" == *"graphviz"* ]]; then
+        "$SCRIPT_DIR/venv/bin/pip" install gradio graphviz
+    fi
+
+    if [[ "$MISSING_DEPS" == *"semantic_bit"* ]]; then
+        "$SCRIPT_DIR/venv/bin/pip" install -e ./semantic_bit
+    fi
+
+    echo ""
+    echo "✅ Dependencies installed"
     echo ""
 fi
 
