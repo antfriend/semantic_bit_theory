@@ -288,8 +288,6 @@ def _generate_css(num_sentences: int, interval_ms: int) -> str:
     Returns:
         CSS string with keyframes and styles
     """
-    total_duration = num_sentences * interval_ms
-
     # Base styles
     css_parts = [
         "/* Base Styles */",
@@ -301,8 +299,8 @@ def _generate_css(num_sentences: int, interval_ms: int) -> str:
         ".sb-arrow { font-size: 24px; fill: #666; }",
         "",
         "/* Sentence visibility control */",
-        f"[class*='sentence-'] {{ opacity: 0; visibility: hidden; animation-duration: {interval_ms}ms; animation-fill-mode: both; animation-iteration-count: infinite; }}",
-        f".last-sentence {{ animation-iteration-count: 1; animation-fill-mode: forwards; }}",
+        f"[class*='sentence-'] {{ opacity: 0; visibility: hidden; animation-duration: {interval_ms}ms; animation-fill-mode: both; animation-iteration-count: 1; }}",
+        f".last-sentence {{ animation-fill-mode: forwards; }}",
         "",
     ]
 

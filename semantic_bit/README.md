@@ -53,6 +53,64 @@ pytest tests/test_semantic.py::TestEncoding -v
 
 **📖 For detailed testing instructions, see [Testing Guide](../docs/testing.md)**
 
+### Gradio Visual Testing App
+
+An interactive web interface for testing pattern detection, visualization, and SVG animation generation.
+
+#### Setup
+
+```bash
+# From the project root (semantic_bit_theory/)
+
+# 1. Create virtual environment with Python 3.13 or 3.12
+#    (Python 3.14 has compatibility issues with some dependencies)
+python3.13 -m venv venv
+
+# 2. Activate the virtual environment
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# 3. Install Gradio and dependencies
+pip install gradio graphviz
+
+# 4. Install semantic_bit package in editable mode
+pip install -e ./semantic_bit
+```
+
+#### Running the App
+
+```bash
+# From the project root
+./venv/bin/python semantic_bit/demo/gradio_app.py
+
+# Or from the semantic_bit/ directory
+cd semantic_bit
+../venv/bin/python -m demo.gradio_app
+```
+
+The app will open at: **http://localhost:7860**
+
+#### Features
+
+- **Interactive text processing**: Enter text and see semantic patterns extracted
+- **Graph visualization**: Visual representation of semantic relationships
+- **Pattern inspection**: Color-coded pattern display
+- **JSON output**: View the raw Semantic Bit JSON structure
+- **Enrichments**: Link assets and functions to patterns (optional)
+- **SVG Animation** *(NEW)*: Generate animated SVG slideshows from text
+
+#### System Requirements
+
+- **macOS**: Requires system Graphviz for graph rendering
+  ```bash
+  brew install graphviz
+  ```
+
+- **Linux**: Install via package manager
+  ```bash
+  sudo apt-get install graphviz  # Debian/Ubuntu
+  sudo yum install graphviz      # Red Hat/CentOS
+  ```
+
 ## Package Development
 
 ### Building and Publishing

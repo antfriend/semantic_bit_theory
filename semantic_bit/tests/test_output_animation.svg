@@ -10,8 +10,8 @@
 .sb-arrow { font-size: 24px; fill: #666; }
 
 /* Sentence visibility control */
-[class*='sentence-'] { opacity: 0; visibility: hidden; animation-duration: 3000ms; animation-fill-mode: both; animation-iteration-count: infinite; }
-.last-sentence { animation-iteration-count: 1; animation-fill-mode: forwards; }
+[class*='sentence-'] { opacity: 0; visibility: hidden; animation-duration: 3000ms; animation-fill-mode: both; animation-iteration-count: 1; }
+.last-sentence { animation-fill-mode: forwards; }
 
 /* Animation Keyframes */
 @keyframes fadeIn {
