@@ -1,132 +1,64 @@
-# semantic-bit
+# Semantic Bit Theory
 
 Convert natural language text into semantic graphs using Semantic Bit Theory (SBT).
 
 ## Overview
 
-semantic-bit is a Python package that implements Semantic Bit Theory to transform natural language into structured semantic representations. It converts text into Point-Line-Point triples (subject-relationship-object) and generates Graphviz DOT graphs for visualization.
+This repository contains the `semantic-bit` Python package that implements Semantic Bit Theory to transform natural language into structured semantic representations. It converts text into Point-Line-Point triples (subject-relationship-object) and generates Graphviz DOT graphs and animated SVG slideshows.
 
-### Key Features
+**Key Features:**
+- 🧠 Semantic encoding: text → Point-Line-Point triples
+- 📊 Graph generation: Graphviz DOT format
+- 🎬 Animated SVG slideshows
+- 🖥️ Interactive Gradio web UI
+- ⚡ Zero runtime dependencies (pure Python)
+- 🔧 CLI pipeline support
 
-- **Semantic Encoding**: Transform text into Point-Line-Point semantic triples  
-- **Graph Generation**: Convert semantic triples to Graphviz DOT format
-- **Lightweight**: Zero external dependencies, pure Python implementation
-- **CLI Pipeline**: Seamless text → JSON → graph workflows
-- **Backward Compatible**: Preserves original text analysis functionality
+## 🚀 Quick Start
 
-### Quick Example
-
-```bash
-# Encode text to semantic triples
-semantic-bit encode "The cat is sitting on the mat."
-
-# Generate a graph
-echo "The scientist studies quantum mechanics." | semantic-bit encode | semantic-bit decode
-```
-
-## 🚀 Quick Start - Gradio Web App
-
-**For visual testing and animated SVG generation:**
+**Want to try it immediately?** Launch the Gradio web interface:
 
 ```bash
 # From the project root (semantic_bit_theory/)
-
-# Option 1: Use convenience script (easiest)
 ./start_gradio.sh              # macOS/Linux
 start_gradio.bat               # Windows
-
-# Option 2: Manual activation (recommended for development)
-source venv/bin/activate       # macOS/Linux
-venv\Scripts\activate          # Windows
-cd semantic_bit
-python -m demo.gradio_app
 
 # Opens at: http://localhost:7860
 ```
 
-**Features**: Interactive pattern detection, graph visualization, and **animated SVG slideshow generation**.
-
-See [Gradio App Guide](semantic_bit/README.md#quick-start---gradio-app) for detailed setup instructions.
-
----
+**For detailed usage instructions**, see the **[semantic_bit package README](semantic_bit/README.md)** which includes:
+- Complete installation guide
+- Python API examples
+- CLI usage patterns
+- Gradio web UI setup
+- Troubleshooting tips
 
 ## Installation
 
-### For End Users
+### End Users (pip)
 
 ```bash
 pip install semantic-bit
 ```
 
-The semantic-bit package has **zero runtime dependencies** - it uses only Python's standard library!
-
-### For Development
-
-To work on the semantic_bit_theory project (including diagram generation and testing):
+### Contributors (Development)
 
 ```bash
+git clone https://github.com/your-username/semantic_bit_theory.git
 cd semantic_bit_theory
 
-# Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install development dependencies
 pip install -r requirements.txt
 
-# Install the package in editable mode
+# Install package in editable mode
 pip install -e ./semantic_bit
 ```
 
-**Development dependencies include:**
-- `matplotlib` & `numpy` - For generating visualization diagrams
-- `pytest` - For running the test suite
-- `build` & `twine` - For packaging and publishing
-
-## Quick Start
-
-### Python API
-```python
-from semantic_bit import encode_text_to_sb, decode_sb_to_dot
-
-# Encode text to semantic triples
-text = "The cat is sitting on the mat."
-semantic_bits = encode_text_to_sb(text)
-print(semantic_bits)
-# {"sentences": [{"point1": "The cat", "line1": "is sitting on", "point2": "the mat"}]}
-
-# Generate DOT graph
-dot_graph = decode_sb_to_dot(semantic_bits)
-print(dot_graph)
-# digraph SBGraph { p1 [label="The cat"]; p2 [label="the mat"]; p1 -> p2 [label="is sitting on"]; }
-```
-
-### Command Line Interface
-```bash
-# Encode text to semantic JSON
-semantic-bit encode "The cat is sitting on the mat."
-semantic-bit encode --file input.txt --out output.json
-
-# Decode JSON to DOT graph  
-semantic-bit decode --file output.json --out graph.dot
-
-# Pipeline operations
-semantic-bit encode --file input.txt | semantic-bit decode --name "MyGraph"
-```
-
-### Web Demo (Gradio UI)
-
-semantic-bit includes an interactive Gradio web interface for visual testing, pattern detection, graph visualization, and **animated SVG generation**.
-
-**Quick Start**: See the [Gradio Quick Start](#-quick-start---gradio-web-app) section above for the easiest way to launch the app.
-
-**Detailed Setup**: For complete setup instructions including:
-- Virtual environment setup
-- Dependency installation (gradio, graphviz)
-- Multiple startup options
-- Troubleshooting
-
-See the [Gradio App Guide](semantic_bit/README.md#gradio-visual-testing-app) in the semantic_bit package README.
+**Development dependencies:** matplotlib, numpy, pytest, build, twine
 
 ## Documentation
 
