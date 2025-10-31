@@ -197,6 +197,9 @@ def _pick_animation(sentence: Dict[str, Any]) -> str:
         line_content = sentence.get("line", {}).get("content", "")
     elif sentence_type == "line":
         line_content = sentence.get("content", "")
+        # Handle both string and dict content
+        if isinstance(line_content, dict):
+            line_content = line_content.get("content", "")
 
     # If no line content, use default
     if not line_content:

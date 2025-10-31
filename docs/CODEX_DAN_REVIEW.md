@@ -11,6 +11,7 @@
 ### What's Complete ✅
 - SVG animation feature fully validated (macOS + Windows)
 - User approved: "overall looks good"
+- Line-only pattern crash bug fixed (svg_animation.py:198-202)
 - Feature marked production-ready
 
 ### What's Next 🎯

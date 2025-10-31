@@ -4,7 +4,14 @@
 
 ---
 
-## 1. Failing Test Analysis
+## 1. Failing Test Analysis & Bug Fixes
+
+### Fixed: Line-Only Pattern Crash ✅
+**What it was**: Crash when `content` field is dict instead of string (svg_animation.py:206)
+**Why it failed**: `_pick_animation()` called `.encode()` on dict object
+**Impact**: HIGH - blocked production sign-off
+**Fix Applied**: Added isinstance() check to handle dict content (lines 200-202)
+**Status**: ✅ Fixed and tested (2025-10-30)
 
 ### Test 1: `test_the_end_not_duplicated` ❌
 **What it tests**: Expects "The End." (with period) to appear once
@@ -24,7 +31,7 @@
 **Priority**: Low
 
 ### Conclusion
-Both tests are **test specification issues**, not actual bugs. The SVG animation feature works correctly - users confirmed animations display properly with all pattern types.
+Critical production bug fixed. Two remaining test failures are **test specification issues**, not actual bugs. The SVG animation feature works correctly - users confirmed animations display properly with all pattern types.
 
 ---
 
