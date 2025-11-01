@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo $PATH)",
+      "Bash(python3:*)",
+      "Bash(py)",
+      "Bash(py --version)",
+      "Bash(py:*)",
+      "Bash(source ~/.bashrc)",
+      "Bash(pip --version)",
+      "Bash(alias python=\"py\")",
+      "Bash(alias pip=\"py -m pip\")",
+      "Bash(wsl:*)",
+      "Read(//c/Users/jblac/projects/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

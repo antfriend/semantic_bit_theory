@@ -1,4 +1,4 @@
-﻿# semantic-bit Package
+﻿git # semantic-bit Package
 
 This directory contains the Python package implementation of semantic-bit.
 

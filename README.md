@@ -96,6 +96,11 @@ semantic_bit_theory/
 └── images/                            # Conceptual diagrams and visualizations
 ```
 
+## Related Repositories
+
+- Semantic Bit GPU Server: https://github.com/jblacketter/semantic_bit_gpu_server
+  - Standalone FastAPI microservice for Stable Diffusion 1.5 image generation on RTX 4070 SUPER (WSL2), with model warm-loading and request queuing.
+
 ## Contributing
 
 We welcome contributions! Please see our testing guide for information about running tests and our examples documentation for usage patterns.
