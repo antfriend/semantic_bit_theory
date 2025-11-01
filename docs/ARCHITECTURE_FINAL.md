@@ -798,7 +798,7 @@ assert "mat" in prompt.lower()
 - Dan could run his own instance
 - Easier to secure and audit
 
-**Status**: 🟢 Approved (2025-11-01) – Jack and Codex aligned on Option A; update architecture and handoff materials accordingly.
+**Status**: 🟢🟢 APPROVED (2025-10-31) – Jack, Claude, and Codex aligned on Option A (separate GPU server repo). Architecture finalized and ready for implementation.
 
 ### Decision 3: Where to Host newdreamflow?
 **Question**: Mac dev + cloud deploy, or all on Windows PC?
