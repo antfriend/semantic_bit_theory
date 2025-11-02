@@ -29,7 +29,14 @@
       "Bash(.venv/bin/python test_gpu_integration.py)",
       "Bash(.venv/bin/python:*)",
       "Bash(wsl.exe --list:*)",
-      "Bash(wslpath:*)"
+      "Bash(wslpath:*)",
+      "Bash(git log:*)",
+      "Bash(cat:*)",
+      "Bash(pip show:*)",
+      "Bash(pip install:*)",
+      "Bash(uvicorn:*)",
+      "Bash(python scripts/smoke_gpu_server.py:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
