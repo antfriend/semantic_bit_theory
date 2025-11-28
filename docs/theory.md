@@ -9,11 +9,13 @@ Semantic Bit Theory encodes and decodes time-spanning events into a symbolic tax
 ### It means what you think it means, if you know what I mean.
 
 In Semantic Bit Theory the taxonomic principle of division is:   
-- noun or a verb
-- object or a predicate
-- particle or a wave
-- person or a feeling that person is having   
-o_o
+- either a concept or a process
+- a noun or a verb
+- an object or a predicate
+- a point or a line
+- a particle or a wave
+- a person or a feeling (that person is having)   
+- "o" or "_" (o_o)
 
 ## Applications:
 ## Knowledge Graphs & Integration
